@@ -1,22 +1,30 @@
-let isButtonPressed = false;
+// States
+let status = "themeSelection";
 
 let video;
 let posenet;
 let poses;
-let handRX = 0, handRY = 0;
-let handLX = 0, handLY = 0;
-let lastRX = 0, lastRY = 0;
-let lastLX = 0, lastLY = 0;
-let beginTime = 2; // sec
-let endTime = 120; // sec
+let handPos = {
+  R: {
+    x : 0,
+    y : 0
+  },
+  L: {
+    x : 0,
+    y : 0
+  },
+};
+let pastHandPos = [];
 
 // Menü
-let logoTextSize = 40;
-let headlineTextSize = 60;
+let logo;
+let logoWidth;
+let logoHeight;
+let headlineTextSize = 77;
 let buttonTextSize = 40;
+let textTextSize = 32;
 
 // Visualisierung
-let rescaleDimensionFactor = 1;
 let history = 2;
 let videoWidth = 640;
 let videoHeight = 480;
@@ -40,9 +48,10 @@ let biquadFilters = [];
 let audioBuffers = [];
 
 // Time
-let startTime;
 let deltaTime = 0;
-let lastTime = 0;
+let timeDelay = 2;
+let currentTime = 0;
+let endTime = 5; // 120; // sec
 let loopTimes = [0, 0, 0, 0]
 let isPlaying = [false, false, false, false];
 // Tempo
@@ -54,7 +63,7 @@ function createAudioContext(theme) {
 
   context = new AudioContext();
 
-  sphere = new Audio("/aiXdesign/" + theme + "/sphere.wav");
+  sphere = new Audio(theme + "/sphere.wav");
   sphere.loop = true;
   source = context.createMediaElementSource(sphere);
   sphereFilter = context.createBiquadFilter();
@@ -66,29 +75,50 @@ function createAudioContext(theme) {
   audioBuffers = [];
   for (let i = 0; i < 3; i++) getAudioData(i, theme);
 
-  isButtonPressed = true;
-
   video = createCapture(VIDEO);
   video.hide();
 
-  posenet = ml5.poseNet(video, modelLoaded);
+  posenet = ml5.poseNet(video, modelHandler);
   posenet.on('pose', getPoses);
 }
+function defineSizes() {
 
-function preload() {
-  // Font
-  fontLogo = loadFont('assets/BHVSerif-Display.otf');
+  // Menü
+  logoHeight = window.innerHeight / 32 < 20 ? 20 : window.innerHeight / 32;
+  logoWidth = logoHeight / 33 * 219;
+  headlineTextSize = window.innerHeight / 14 < 40 ? 40 : window.innerHeight / 14;
+  buttonTextSize = window.innerHeight / 27 < 20 ? 20 : window.innerHeight / 27;
+  textTextSize = window.innerHeight / 33.75 < 15.5 ? 15.5 : window.innerHeight / 33.75;
 
-  // Handvisuals
-  imgR = loadImage('assets/R2.png');
-  imgL = loadImage('assets/L2.png');
-}
-
-function setup() {
-  background(0);
+  // Canvas
   rescaleDimensionFactor = windowWidth / videoWidth;
   videoWidth = window.innerWidth;
   videoHeight = window.innerHeight; //videoHeight * rescaleDimensionFactor;
+}
+
+function preload() {
+  // Logo
+  logo = loadImage('assets/logo/weiss_Aetherfon_Logo_RZ.png');
+  
+  // Images
+  imgMouse = loadImage('assets/images/mouse.jpg');
+  imgParty = loadImage('assets/images/party.jpg');
+  imgSpeaker = loadImage('assets/images/speaker.jpg');
+  imgTheramin = loadImage('assets/images/theramin.jpg');
+
+  // Font
+  fontHeader = loadFont('assets/fonts/BHVSerif-Display.otf');
+
+  // Handvisuals
+  imgR = loadImage('assets/icons/R2.png');
+  imgL = loadImage('assets/icons/L2.png');
+}
+function setup() {
+  
+  defineSizes();
+
+  background(0);
+
   createCanvas(videoWidth, videoHeight);
 
   ranges = {
@@ -132,110 +162,217 @@ function setup() {
     }
   };
 }
-
 function draw() {
+
+  defineSizes();
+  resizeCanvas(videoWidth, videoHeight);
 
   background(0);
   translate(videoWidth, 0)
-
-  // Wenn Spiel noch nicht läuft, Buttons anzeigen
-  if (!isButtonPressed) {
-    scale(1, 1)
-
-    let string = 'AETHERFON';
-    textFont(fontLogo);
-    textSize(logoTextSize);
-    textAlign(LEFT);
-    fill(255);
-    text(string, -videoWidth + 60, 80);
-
-    string = 'WÄHLE EINE SOUNDWELT'
-    textFont(fontLogo);
-    textSize(headlineTextSize);
-    textAlign(CENTER);
-    fill(255);
-    text(string, -videoWidth / 2, videoHeight / 7 * 2 +80);
-
-    
-    textFont('freight-neo-pro');
-    textSize(buttonTextSize);
-    string = 'SPHÄRISCH'
-    // text(string, - videoWidth / 9 * 3, videoHeight / 7 * 4);
-    text(string, - videoWidth / 2 + 300, videoHeight / 7 * 4 +80);
-    string = 'EXPERIMENTELL'
-    text(string, - videoWidth / 2, videoHeight / 7 * 4 +80);
-    string = 'MEDITATIV'
-    // text(string, - videoWidth / 9 * 6, videoHeight / 7 * 4);
-    text(string, - videoWidth / 2 - 300, videoHeight / 7 * 4 +80);
-
+  
+  switch (status) {
+    case 'themeSelection':
+      themeSelectionPage();
+      break;
+    case 'loading':
+      loadingPage();
+      break;
+    case 'game':
+      gamePage();
+      break;
+    case 'gameEnded':
+      gameEndedPage();
+      break;
   }
-  // Wenn Buttons gedrückt worden sind, Spiel starten
-  else {
-    scale(-1, 1)
+}
 
-    // image(video, 0, 0, videoWidth, videoHeight);
-    let currentHandRX = 0, currentHandRY = 0;
-    let currentHandLX = 0, currentHandLY = 0;
-    if (poses) {
-      currentHandRX = (poses.rightWrist.x * rescaleDimensionFactor + handRX + lastRX) / 3;
-      currentHandRY = (poses.rightWrist.y * rescaleDimensionFactor + handRY + lastRY) / 3;
-      currentHandLX = (poses.leftWrist.x * rescaleDimensionFactor + handLX + lastLX) / 3;
-      currentHandLY = (poses.leftWrist.y * rescaleDimensionFactor + handLY + lastLY) / 3;
-    }
-    lastRX = handRX;
-    lastRY = handRY;
-    lastLX = handLX;
-    lastLY = handLY;
-    handRX = currentHandRX;
-    handRY = currentHandRY;
-    handLX = currentHandLX;
-    handLY = currentHandLY;
+// Pages
+function themeSelectionPage() {
+  // Logo
+  image(logo, -videoWidth+79, 85, logoWidth, logoHeight);
+    
+  // Headline
+  let string = 'WÄHLE EINE SOUNDWELT'
+  textFont(fontHeader);
+  textSize(headlineTextSize);
+  textAlign(CENTER);
+  fill(255);
+  text(string, -videoWidth / 2, videoHeight / 3 * 1 + headlineTextSize);
 
-    // Play Beat
-    deltaTime = context.currentTime - lastTime;
-    // console.log(deltaTime);
-    lastTime = context.currentTime
-    if (context.currentTime > beginTime && context.currentTime < endTime) {
-      loopTimes[0] += deltaTime;
-      if (loopTimes[0] > (takt * 8 * eightNoteTime)) { // takt * 8 * eightNoteTime = 4.266
-        loopTimes[0] = 0;
-        playBeat(0, 2500, 0);
-      }
-    }
+  // Auswahl
+  textFont('freight-neo-pro');
+  textSize(buttonTextSize);
+  string = 'SPHÄRISCH'
+  text(string, - videoWidth / 2 + buttonTextSize*10, videoHeight / 3 * 2 - buttonTextSize);
+  string = 'EXPERIMENTELL'
+  text(string, - videoWidth / 2, videoHeight / 3 * 2 - buttonTextSize);
+  string = 'MEDITATIV'
+  text(string, - videoWidth / 2 - buttonTextSize*10, videoHeight / 3 * 2 - buttonTextSize);
+}
+function loadingPage() {
+  // Logo
+  image(logo, -videoWidth+79, 85, logoWidth, logoHeight);
+
+  // Hinweis-Text
+  let string = 'POSENET WIRD GELADEN'
+  textFont(fontHeader);
+  textSize(headlineTextSize);
+  textAlign(CENTER);
+  fill(255);
+  text(string, -videoWidth / 2, videoHeight / 3 * 1 + headlineTextSize);
+}
+function gamePage() {  
+  scale(-1, 1)
+
+  // Hand-Positionen erkennen
+  // image(video, 0, 0, videoWidth, videoHeight);
+  let currentHandRX = 0, currentHandRY = 0;
+  let currentHandLX = 0, currentHandLY = 0;
+  if (poses) {
+    // Zur Rausch-Minimierung mit vergangenen Positionen verrechnen
+    pastHandPos.forEach( function(element) {
+      currentHandRX = (map(poses.rightWrist.x, 0, video.width, 0, innerWidth, true) + element.R.x) / 2;
+      currentHandRY = (map(poses.rightWrist.y, 0, video.height, 0, innerHeight, true) + element.R.y) / 2
+      currentHandLX = (map(poses.leftWrist.x, 0, video.width, 0, innerWidth, true) + element.L.x) / 2
+      currentHandLY = (map(poses.leftWrist.y, 0, video.height, 0, innerHeight, true) + element.L.y) / 2
+    });
+  }
+  // letzte Hand-Position hinzufügen / überflüssige Elemente löschen
+  pastHandPos.push({
+    R: {
+      x : handPos.R.x,
+      y : handPos.R.y
+    },
+    L: {
+      x : handPos.L.x,
+      y : handPos.L.y
+    },
+  });
+  if (pastHandPos.length > 3) pastHandPos.shift();
+  // neue Hand-Position setzen
+  handPos = {
+    R: {
+      x : currentHandRX,
+      y : currentHandRY
+    },
+    L: {
+      x : currentHandLX,
+      y : currentHandLY
+    },
+  }
+
+  // Zeiten 
+  deltaTime = context.currentTime - currentTime;
+  currentTime = context.currentTime;
+  
+  // Spiel anzeigen bis Zeit vorbei ist
+  if (currentTime < endTime) {
 
     // Top Area
     topArea();
 
-    // Visualizations
-    // visualsSoundsAtHandPos();
-    visualizationBody();
-
     // Bottom Speed-Slider
     bottomSpeedSlider();
 
-    visualsNoisy(visualsPositions, tempo);
-  }
-}
-
-function mousePressed() {
-
-  if (mouseY > videoHeight / 7 * 4 - buttonTextSize / 2 && mouseY < videoHeight / 7 * 4 + buttonTextSize / 2) {
-    
-    if (mouseX > videoWidth / 9 * 2 -40 && mouseX < videoWidth / 9 * 2 +40){
-      createAudioContext("theme1");
-    } else if (mouseX > videoWidth / 2 -40 && mouseX < videoWidth / 2 +40){
-      createAudioContext("theme2");
-    } else if (mouseX > videoWidth / 9 * 2 -40 && mouseX < videoWidth / 9 * 4 +40){
-      createAudioContext("theme3");
+    // Play Beat
+    loopTimes[0] += deltaTime;
+    if (loopTimes[0] > (takt * 8 * eightNoteTime)) { // takt * 8 * eightNoteTime = 4.266
+      loopTimes[0] = 0;
+      playBeat(0, 2500, 0);
     }
+
+    // Visualizations
+    visualizationBody();
+    // visualsSoundsAtHandPos(); 
+    visualsNoisy(visualsPositions, tempo);
+
+  } 
+  // Wenn Zeit vorbei ist Variablen zurücksetzen uns Status ändern
+  else if (currentTime > endTime + timeDelay) {
+    visualsPositions = [[], [], [], []];
+    loopTimes[0] = 0;
+    currentTime = 0;
+    status = 'gameEnded';
   }
 }
+function gameEndedPage() {
+  // Logo
+  image(logo, -videoWidth+79, 85, logoWidth, logoHeight);
+    
+  // Headline
+  let string = 'GEIL GEMACHT!';
+  textFont(fontHeader);
+  textSize(headlineTextSize);
+  textAlign(CENTER);
+  fill(255);
+  text(string, -videoWidth / 2, videoHeight / 3 * 1 + headlineTextSize);
 
-// Interaction
+  // Text
+  textFont('freight-neo-pro');
+  textSize(textTextSize);
+  string = 'Wir hoffen, es hat Spaß gemacht! Zeig es gerne deinen Freunden! \n Moniek, Tobias, Hannah & Charleen';
+  text(string, - videoWidth / 2, videoHeight / 2);
+
+  // Auswahl
+  textSize(buttonTextSize);
+  string = 'NOCHMAL';
+  text(string, - videoWidth / 2 - buttonTextSize*5.66, videoHeight / 3 * 2 - buttonTextSize);
+  string = 'ÜBER AETHERFON';
+  text(string, - videoWidth / 2 + buttonTextSize*4.33, videoHeight / 3 * 2 - buttonTextSize);
+}
+
+// Page Interaction Mouse
+function mousePressed() {  
+  switch (status) {
+    case 'themeSelection':
+      if (mouseY > videoHeight / 3 * 2 - buttonTextSize * 2 && 
+        mouseY < videoHeight / 3 * 2 - buttonTextSize
+      ) {
+        if (mouseX > videoWidth / 2 + buttonTextSize*10 - buttonTextSize * 3 && 
+          mouseX < videoWidth / 2 + buttonTextSize*10 + buttonTextSize * 3
+        ){
+          status = 'loading';
+          createAudioContext("theme1");
+        } 
+        else if (mouseX > videoWidth / 2 - buttonTextSize * 4 && 
+          mouseX < videoWidth / 2 + buttonTextSize * 4
+        ){
+          status = 'loading';
+          createAudioContext("theme2");
+        } 
+        else if (mouseX > videoWidth / 2 - buttonTextSize*10 - buttonTextSize * 3 && 
+          mouseX < videoWidth / 2 - buttonTextSize*10 + buttonTextSize * 3
+        ){
+          status = 'loading';
+          createAudioContext("theme3");
+        }
+      }
+      break;
+    case 'gameEnded':
+      if (mouseY > videoHeight / 3 * 2 - buttonTextSize * 2 && 
+        mouseY < videoHeight / 3 * 2 - buttonTextSize
+      ) {
+        if (mouseX > videoWidth / 2 - buttonTextSize*5.66 - buttonTextSize * 2.5 && 
+          mouseX < videoWidth / 2 - buttonTextSize*5.66 + buttonTextSize * 2.5
+        ){
+          status = 'themeSelection';
+        } 
+        else if (mouseX > videoWidth / 2 + buttonTextSize*4.33 - buttonTextSize * 4 && 
+          mouseX < videoWidth / 2 + buttonTextSize*4.33 + buttonTextSize * 4
+        ){
+          status = 'themeSelection';
+        }
+      }
+      break;
+  }
+  
+}
+
+// Game Interaction Hands
 function topArea() {
 
   // Rechts
-  if (handRY > ranges.y1.low && handRY < ranges.y1.high && handRX > ranges.x1.low && handRX < ranges.x1.high) {
+  if (handPos.R.y > ranges.y1.low && handPos.R.y < ranges.y1.high && handPos.R.x > ranges.x1.low && handPos.R.x < ranges.x1.high) {
 
     // biquadFilters[1].frequency.value = map (handRY, ranges.y.low, ranges.y.high, 5, 20000);
     // biquadFilters[1].detune.value = map (handRX, ranges.x1.low , ranges.x1.high, 0, 45); // Detune
@@ -245,18 +382,18 @@ function topArea() {
 
     var random = Math.random();
     var detune = 100;
-    var frequency = map(handRY, ranges.y1.high, ranges.y1.low, 500, 5000);// + random *50 -25;
-    var Q = map(handRX, ranges.x1.low, ranges.x1.high, 0, 50, true);// + random *10 -5;
-    var gain = map(handRX, ranges.x1.low, ranges.x1.high, 1, 0, true);
+    var frequency = map(handPos.R.y, ranges.y1.high, ranges.y1.low, 500, 5000);// + random *50 -25;
+    var Q = map(handPos.R.x, ranges.x1.low, ranges.x1.high, 0, 50, true);// + random *10 -5;
+    var gain = map(handPos.R.x, ranges.x1.low, ranges.x1.high, 1, 0, true);
 
-    if (context.currentTime > beginTime && context.currentTime < endTime) {
+    if (context.currentTime < endTime) {
       loopTimes[1] += deltaTime;
       if (loopTimes[1] > (takt * 8 * eightNoteTime)) { // takt * 8 * eightNoteTime = 4.266
         loopTimes[1] = 0;
         playSoundRight(detune, frequency, Q, gain);
       }
     }
-  } else if (handLY > ranges.y1.low && handLY < ranges.y1.high && handLX > ranges.x1.low && handLX < ranges.x1.high) {
+  } else if (handPos.L.y > ranges.y1.low && handPos.L.y < ranges.y1.high && handPos.L.x > ranges.x1.low && handPos.L.x < ranges.x1.high) {
 
     // biquadFilters[1].frequency.value = map (handRY, ranges.y.low, ranges.y.high, 5, 20000);
     // biquadFilters[1].detune.value = map (handRX, ranges.x1.low , ranges.x1.high, 0, 45); // Detune
@@ -266,11 +403,11 @@ function topArea() {
 
     var random = Math.random();
     var detune = 100;
-    var frequency = map(handLY, ranges.y1.high, ranges.y1.low, 500, 5000);// + random *50 -25;
-    var Q = map(handLX, ranges.x1.low, ranges.x1.high, 0, 50, true);// + random *10 -5;
-    var gain = map(handLX, ranges.x1.low, ranges.x1.high, 1, 0, true);
+    var frequency = map(handPos.L.y, ranges.y1.high, ranges.y1.low, 500, 5000);// + random *50 -25;
+    var Q = map(handPos.L.x, ranges.x1.low, ranges.x1.high, 0, 50, true);// + random *10 -5;
+    var gain = map(handPos.L.x, ranges.x1.low, ranges.x1.high, 1, 0, true);
 
-    if (context.currentTime > beginTime && context.currentTime < endTime) {
+    if (context.currentTime < endTime) {
       loopTimes[1] += deltaTime;
       if (loopTimes[1] > (takt * 8 * eightNoteTime)) { // takt * 8 * eightNoteTime = 4.266
         loopTimes[1] = 0;
@@ -279,7 +416,7 @@ function topArea() {
     }
   }
   // Oben
-  if (handRY > ranges.y2.low && handRY < ranges.y2.high && handRX > ranges.x2.low && handRX < ranges.x2.high) {
+  if (handPos.R.y > ranges.y2.low && handPos.R.y < ranges.y2.high && handPos.R.x > ranges.x2.low && handPos.R.x < ranges.x2.high) {
 
     // var random = Math.random();
     // var detune = 100;
@@ -295,15 +432,15 @@ function topArea() {
     //   }
     // }
 
-    sphereFilter.frequency.value = map(handRY, ranges.y2.high, ranges.y2.low, 500, 5000);
-    sphereFilter.Q.value = map(handRX, ranges.x2.low, ranges.x2.high, 0, 50, true);
-    sphereFilter.gain.value = map(handRY, ranges.y2.high, ranges.y2.low, 0, 0.5, true);
+    sphereFilter.frequency.value = map(handPos.R.y, ranges.y2.high, ranges.y2.low, 500, 5000);
+    sphereFilter.Q.value = map(handPos.R.x, ranges.x2.low, ranges.x2.high, 0, 50, true);
+    sphereFilter.gain.value = map(handPos.R.y, ranges.y2.high, ranges.y2.low, 0, 0.5, true);
     // gainNode.gain.value = map (handRY, ranges.y2.high, ranges.y2.low, 0, 1, true);
 
     if (!sphereIsPlaying) sphere.play();
     sphereIsPlaying = true;
 
-  } else if (handLY > ranges.y2.low && handLY < ranges.y2.high && handLX > ranges.x2.low && handLX < ranges.x2.high) {
+  } else if (handPos.L.y > ranges.y2.low && handPos.L.y < ranges.y2.high && handPos.L.x > ranges.x2.low && handPos.L.x < ranges.x2.high) {
 
     // var random = Math.random();
     // var detune = 100;
@@ -319,9 +456,9 @@ function topArea() {
     //   }
     // }
 
-    sphereFilter.frequency.value = map(handLX, ranges.x2.low, ranges.x2.high, 500, 5000);
-    sphereFilter.Q.value = map(handLX, ranges.x2.low, ranges.x2.high, 0, 50, true);
-    sphereFilter.gain.value = map(handLY, ranges.y2.high, ranges.y2.low, 0, 0.5, true);
+    sphereFilter.frequency.value = map(handPos.L.x, ranges.x2.low, ranges.x2.high, 500, 5000);
+    sphereFilter.Q.value = map(handPos.L.x, ranges.x2.low, ranges.x2.high, 0, 50, true);
+    sphereFilter.gain.value = map(handPos.L.y, ranges.y2.high, ranges.y2.low, 0, 0.5, true);
     // gainNode.gain.value = map (handRY, ranges.y2.high, ranges.y2.low, 0, 1, true);
 
     if (!sphereIsPlaying) sphere.play();
@@ -331,30 +468,30 @@ function topArea() {
     sphere.pause()
   }
   // Links
-  if (handRY > ranges.y3.low && handRY < ranges.y3.high && handRX > ranges.x3.low && handRX < ranges.x3.high) {
+  if (handPos.R.y > ranges.y3.low && handPos.R.y < ranges.y3.high && handPos.R.x > ranges.x3.low && handPos.R.x < ranges.x3.high) {
 
     var random = Math.random();
     var detune = 100;
-    var frequency = map(handRY, ranges.y3.high, ranges.y3.low, 500, 5000);// + random *50 -25;
-    var Q = map(handRX, ranges.x3.low, ranges.x3.high, 0, 50, true);// + random *10 -5;
-    var gain = map(handRX, ranges.x3.low, ranges.x3.high, 0, 3, true);
+    var frequency = map(handPos.R.y, ranges.y3.high, ranges.y3.low, 500, 5000);// + random *50 -25;
+    var Q = map(handPos.R.x, ranges.x3.low, ranges.x3.high, 0, 50, true);// + random *10 -5;
+    var gain = map(handPos.R.x, ranges.x3.low, ranges.x3.high, 0, 3, true);
 
-    if (context.currentTime > beginTime && context.currentTime < endTime) {
+    if (context.currentTime < endTime) {
       loopTimes[3] += deltaTime;
       if (loopTimes[3] > (takt * 2 * eightNoteTime)) { // takt * 8 * eightNoteTime = 4.266
         loopTimes[3] = 0;
         playSoundLeft(detune, frequency, Q, gain);
       }
     }
-  } else if (handLY > ranges.y3.low && handLY < ranges.y3.high && handLX > ranges.x3.low && handLX < ranges.x3.high) {
+  } else if (handPos.L.y > ranges.y3.low && handPos.L.y < ranges.y3.high && handPos.L.x > ranges.x3.low && handPos.L.x < ranges.x3.high) {
 
     var random = Math.random();
     var detune = 100;
-    var frequency = map(handLY, ranges.y3.high, ranges.y3.low, 500, 5000);// + random *50 -25;
-    var Q = map(handLX, ranges.x3.low, ranges.x3.high, 0, 50, true);// + random *5 -2.5;
-    var gain = map(handLX, ranges.x3.low, ranges.x3.high, 0, 3, true);
+    var frequency = map(handPos.L.y, ranges.y3.high, ranges.y3.low, 500, 5000);// + random *50 -25;
+    var Q = map(handPos.L.x, ranges.x3.low, ranges.x3.high, 0, 50, true);// + random *5 -2.5;
+    var gain = map(handPos.L.x, ranges.x3.low, ranges.x3.high, 0, 3, true);
 
-    if (context.currentTime > beginTime && context.currentTime < endTime) {
+    if (context.currentTime < endTime) {
       loopTimes[3] += deltaTime;
       if (loopTimes[3] > (takt * 2 * eightNoteTime)) { // takt * 8 * eightNoteTime = 4.266
         loopTimes[3] = 0;
@@ -367,9 +504,9 @@ function topArea() {
   //visualsAreas()
 }
 function bottomSpeedSlider() {
-  if (handLY > videoHeight - 150) {
-    sliderPosition = handLX;
-    tempo = map(handLX, 0, videoWidth, 80, 400, true);
+  if (handPos.L.y > videoHeight - 150) {
+    sliderPosition = handPos.L.x;
+    tempo = map(handPos.L.x, 0, videoWidth, 80, 400, true);
     eightNoteTime = (60 / tempo) / 2;
   }
 
@@ -488,12 +625,8 @@ function visualsSoundsOnBottomLines() {
   }
 }
 function visualizationBody() {
-  // fill(200, 200, 200);
-  // stroke(50, 50, 50);
-  // ellipse(handRX, handRY, 40);
-  // ellipse(handLX, handLY, 40);
-  image(imgR, handLX-36, handLY-50, 72, 100);
-  image(imgL, handRX-36, handRY-50, 72, 100);
+  image(imgR, handPos.L.x-36, handPos.L.y-50, 72, 100);
+  image(imgL, handPos.R.x-36, handPos.R.y-50, 72, 100);
 }
 function visualsAreas1() {
   strokeWeight(5);
@@ -561,7 +694,7 @@ function visualsAreas() {
 function getAudioData(i, theme) {
 
   var request = new XMLHttpRequest();
-  request.open('GET', "/aiXdesign/" + theme + "/sound" + (i + 1) + ".wav", true);
+  request.open('GET', theme + "/sound" + (i + 1) + ".wav", true);
   request.responseType = 'arraybuffer';
   request.onload = function () {
     var undecodedAudio = request.response;
@@ -574,7 +707,6 @@ function getAudioData(i, theme) {
 
   biquadFilters[i] = context.createBiquadFilter();
 }
-
 function playSounds(buffer, time, i, detune, frequency, Q, gain) {
   var source = context.createBufferSource();
   source.buffer = buffer;
@@ -623,8 +755,9 @@ function playSoundLeft(detune, frequency, Q, gain) {
  }*/
 
 // Posemodel
-function modelLoaded() {
-  console.log('Model loaded');
+function modelHandler() {
+  // console.log('Model loaded');
+  status = 'game';
 }
 function getPoses(results) {
   if (results.length > 0) {
