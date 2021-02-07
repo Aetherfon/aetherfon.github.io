@@ -11,7 +11,7 @@ let beginTime = 2; // sec
 let endTime = 120; // sec
 
 // Menü
-// let font;
+let logoTextSize = 40;
 let headlineTextSize = 60;
 let buttonTextSize = 40;
 
@@ -77,7 +77,7 @@ function createAudioContext(theme) {
 
 function preload() {
   // Font
-  // font = loadFont('/assets/')
+  fontLogo = loadFont('assets/BHVSerif-Display.otf');
 
   // Handvisuals
   imgR = loadImage('assets/R2.png');
@@ -134,6 +134,7 @@ function setup() {
 }
 
 function draw() {
+
   background(0);
   translate(videoWidth, 0)
 
@@ -141,20 +142,31 @@ function draw() {
   if (!isButtonPressed) {
     scale(1, 1)
 
-    let string = 'WÄHLE EINE SOUNDWELT'
+    let string = 'AETHERFON';
+    textFont(fontLogo);
+    textSize(logoTextSize);
+    textAlign(LEFT);
+    fill(255);
+    text(string, -videoWidth + 60, 80);
+
+    string = 'WÄHLE EINE SOUNDWELT'
+    textFont(fontLogo);
     textSize(headlineTextSize);
     textAlign(CENTER);
     fill(255);
-    text(string, -videoWidth / 2, videoHeight / 7 * 2);
+    text(string, -videoWidth / 2, videoHeight / 7 * 2 +80);
 
     
+    textFont('freight-neo-pro');
     textSize(buttonTextSize);
     string = 'SPHÄRISCH'
-    text(string, - videoWidth / 9 * 2, videoHeight / 7 * 4);
+    // text(string, - videoWidth / 9 * 3, videoHeight / 7 * 4);
+    text(string, - videoWidth / 2 + 300, videoHeight / 7 * 4 +80);
     string = 'EXPERIMENTELL'
-    text(string, - videoWidth / 2, videoHeight / 7 * 4);
+    text(string, - videoWidth / 2, videoHeight / 7 * 4 +80);
     string = 'MEDITATIV'
-    text(string, - videoWidth / 9 * 7, videoHeight / 7 * 4);
+    // text(string, - videoWidth / 9 * 6, videoHeight / 7 * 4);
+    text(string, - videoWidth / 2 - 300, videoHeight / 7 * 4 +80);
 
   }
   // Wenn Buttons gedrückt worden sind, Spiel starten
