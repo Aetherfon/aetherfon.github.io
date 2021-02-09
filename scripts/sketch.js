@@ -1,5 +1,6 @@
 // States
-let status = "themeSelection";
+let status = 'start';
+let menuTimeout = 0;
 
 let video;
 let posenet;
@@ -20,9 +21,13 @@ let pastHandPos = [];
 let logo;
 let logoWidth;
 let logoHeight;
+let logoBig;
+let logoBigWidth;
+let logoBigHeight;
 let headlineTextSize = 77;
 let buttonTextSize = 40;
 let textTextSize = 32;
+let menuAlpha = 255;
 
 // Visualisierung
 let history = 2;
@@ -51,7 +56,7 @@ let audioBuffers = [];
 let deltaTime = 0;
 let timeDelay = 2;
 let currentTime = 0;
-let endTime = 5; // 120; // sec
+let endTime = 50; // 120; // sec
 let loopTimes = [0, 0, 0, 0]
 let isPlaying = [false, false, false, false];
 // Tempo
@@ -84,8 +89,12 @@ function createAudioContext(theme) {
 function defineSizes() {
 
   // Menü
-  logoHeight = window.innerHeight / 32 < 20 ? 20 : window.innerHeight / 32;
   logoWidth = logoHeight / 33 * 219;
+  logoHeight = window.innerHeight / 32 < 20 ? 20 : window.innerHeight / 32;
+
+  logoBigWidth = 4117/2;
+  logoBigHeight = 622/2;
+
   headlineTextSize = window.innerHeight / 14 < 40 ? 40 : window.innerHeight / 14;
   buttonTextSize = window.innerHeight / 27 < 20 ? 20 : window.innerHeight / 27;
   textTextSize = window.innerHeight / 33.75 < 15.5 ? 15.5 : window.innerHeight / 33.75;
@@ -98,7 +107,8 @@ function defineSizes() {
 
 function preload() {
   // Logo
-  logo = loadImage('assets/logo/weiss_Aetherfon_Logo_RZ.png');
+  logo = loadImage('assets/logo/weiss_Aetherfon_Logo_RZ_klein.png');
+  logoBig = loadImage('assets/logo/weiss_Aetherfon_Logo_RZ.png');
   
   // Images
   imgMouse = loadImage('assets/images/mouse.jpg');
@@ -167,10 +177,13 @@ function draw() {
   defineSizes();
   resizeCanvas(videoWidth, videoHeight);
 
-  background(0);
   translate(videoWidth, 0)
+  background(0);
   
   switch (status) {
+    case 'start':
+      startPage();
+      break;
     case 'themeSelection':
       themeSelectionPage();
       break;
@@ -183,16 +196,44 @@ function draw() {
     case 'gameEnded':
       gameEndedPage();
       break;
+    case 'menu':
+      menu();
+      break;
+    case 'infoPage':
+      infoPage();
+      break;
+  }
+
+  // wenn das Menu eingeblendet ist, Menu nach einer Weile ausblenden
+  if (status == 'menu') {
+    menuTimeout += 1;
+    if (menuTimeout > 300) {
+      status = 'game';
+    }
   }
 }
 
 // Pages
+function startPage() {
+
+  // Logo
+  image(logo, -videoWidth/2 - logoBigWidth/2, videoHeight / 3 * 1 - logoBigHeight + headlineTextSize, logoBigWidth, logoBigHeight);
+
+  // Hinweis-Text
+  let string = "ENTER";
+  textFont('freight-neo-pro');
+  textSize(buttonTextSize);
+  textAlign(CENTER);
+  fill(255);
+  text(string, -videoWidth / 2, videoHeight / 3 * 2  - buttonTextSize);
+}
 function themeSelectionPage() {
+
   // Logo
   image(logo, -videoWidth+79, 85, logoWidth, logoHeight);
     
   // Headline
-  let string = 'WÄHLE EINE SOUNDWELT'
+  let string = "WÄHLE EINE SOUNDWELT";
   textFont(fontHeader);
   textSize(headlineTextSize);
   textAlign(CENTER);
@@ -202,19 +243,20 @@ function themeSelectionPage() {
   // Auswahl
   textFont('freight-neo-pro');
   textSize(buttonTextSize);
-  string = 'SPHÄRISCH'
+  string = "SPHÄRISCH"
   text(string, - videoWidth / 2 + buttonTextSize*10, videoHeight / 3 * 2 - buttonTextSize);
-  string = 'EXPERIMENTELL'
+  string = "EXPERIMENTELL"
   text(string, - videoWidth / 2, videoHeight / 3 * 2 - buttonTextSize);
-  string = 'MEDITATIV'
+  string = "MEDITATIV"
   text(string, - videoWidth / 2 - buttonTextSize*10, videoHeight / 3 * 2 - buttonTextSize);
 }
 function loadingPage() {
+  
   // Logo
   image(logo, -videoWidth+79, 85, logoWidth, logoHeight);
 
   // Hinweis-Text
-  let string = 'POSENET WIRD GELADEN'
+  let string = "POSENET WIRD GELADEN";
   textFont(fontHeader);
   textSize(headlineTextSize);
   textAlign(CENTER);
@@ -222,6 +264,7 @@ function loadingPage() {
   text(string, -videoWidth / 2, videoHeight / 3 * 1 + headlineTextSize);
 }
 function gamePage() {  
+
   scale(-1, 1)
 
   // Hand-Positionen erkennen
@@ -296,11 +339,12 @@ function gamePage() {
   }
 }
 function gameEndedPage() {
+
   // Logo
   image(logo, -videoWidth+79, 85, logoWidth, logoHeight);
     
   // Headline
-  let string = 'GEIL GEMACHT!';
+  let string = "GEIL GEMACHT!";
   textFont(fontHeader);
   textSize(headlineTextSize);
   textAlign(CENTER);
@@ -310,21 +354,76 @@ function gameEndedPage() {
   // Text
   textFont('freight-neo-pro');
   textSize(textTextSize);
-  string = 'Wir hoffen, es hat Spaß gemacht! Zeig es gerne deinen Freunden! \n Moniek, Tobias, Hannah & Charleen';
+  string = "Wir hoffen, es hat Spaß gemacht! Zeig es gerne deinen Freunden! \n Moniek, Tobias, Hannah & Charleen";
   text(string, - videoWidth / 2, videoHeight / 2);
 
   // Auswahl
   textSize(buttonTextSize);
-  string = 'NOCHMAL';
+  string = "NOCHMAL";
   text(string, - videoWidth / 2 - buttonTextSize*5.66, videoHeight / 3 * 2 - buttonTextSize);
-  string = 'ÜBER AETHERFON';
+  string = "ÜBER AETHERFON";
   text(string, - videoWidth / 2 + buttonTextSize*4.33, videoHeight / 3 * 2 - buttonTextSize);
 }
+function menu(){
+
+  // Logo
+  image(logo, -videoWidth+79, 85, logoWidth, logoHeight);
+
+  // Hinweis-Text
+  let string = "FORTSETZEN";
+  textFont('freight-neo-pro');
+  textSize(buttonTextSize);
+  textAlign(LEFT);
+  fill(255);
+  text(string, -videoWidth + 79, videoHeight / 7 * 3);
+
+  string = "NEU STARTEN";
+  text(string, -videoWidth + 79, videoHeight / 7 * 4);
+
+  string = "ÜBER AETHERFON";
+  text(string, -videoWidth + 79, videoHeight / 7 * 5);
+}
+function infoPage(){
+
+  // Logo
+  image(logo, -videoWidth+79, 85, logoWidth, logoHeight);
+
+  // Hinweis-Text
+  let string = "FORTSETZEN";
+  textFont('freight-neo-pro');
+  textSize(buttonTextSize);
+  textAlign(LEFT);
+  fill(255);
+  text(string, -videoWidth + 79, videoHeight / 7 * 3);
+
+  string = "NEU STARTEN";
+  text(string, -videoWidth + 79, videoHeight / 7 * 4);
+
+  string = "ÜBER AETHERFON";
+  text(string, -videoWidth + 79, videoHeight / 7 * 5);
+
+  string = "Erzeuge unbekannte sphärische Klänge und tauche ein in eine neue Form der experimentellen Musikerzeugung – alles gesteuert durch die bloße Bewegung deiner Hände. Aetherfon (abgeleitet von dem elektronischen Musikinstrument Theremin) ist ein auf künstlicher Intelligenz basierendes Experiment, entstanden im Rahmen des multidisziplinären Kurses AIXDESIGN an der HAW Hamburg. Ziel des Experiments ist es die User:innen spielerisch an die Themen Musik und Technik – speziell künstliche Intelligenz – zu führen und Ihnen Raum zur künstlerischen Entfaltung in Zeiten von Corona zu geben. Mit Hilfe von PoseNet, einem Machine Learning Model, das Schätzung der menschlichen Körperhaltung in Echtzeit ermöglicht, können die Handbewegungen der User:innen über die Webcam verfolgt werden. Durch diese Motion Capture sind sie in der Lage die Geschwindigkeit, Lautstärke, Audioqualität und Frequenz mehrerer Sounds, durch die bloße Bewegung ihrer Hände einzeln zu verändern und so Musik zu erzeugen. Zeitgleich wird die erschaffene Musik mittels p5.js, einer JavaScript-Bibliothek, grafisch visualisiert und animiert und gibt den User:innen zusätzlich ein visuelles Feedback zu ihrem musikalischen Spiel. Das Team hinter Aetherfon besteht aus den Studierenden Tobias Braun (B.A. Media Systems), Charleen König (B.A. Kommunikationsdesign), Hannah Pohlmann (M.A. Kommunikationsdesign) und Moniek Wiese (M.A. Kommunikationsdesign).";
+  textSize(textTextSize);
+  text(string, -videoWidth / 5 * 3, videoHeight / 4, videoWidth / 5 * 2);
+}
+
 
 // Page Interaction Mouse
 function mousePressed() {  
   switch (status) {
+    case 'start':
+      if (mouseY > videoHeight / 3 * 2 - buttonTextSize / 2  - buttonTextSize &&
+        mouseY < videoHeight / 3 * 2 + buttonTextSize / 2 - buttonTextSize
+      ) {
+        if (mouseX > videoWidth / 2 - buttonTextSize * 2 && 
+          mouseX < videoWidth / 2 + buttonTextSize * 2
+        ) {
+          status = 'themeSelection';
+        }
+      }
+      break;
     case 'themeSelection':
+      visualsPositions = [[], [], [], []];  
       if (mouseY > videoHeight / 3 * 2 - buttonTextSize * 2 && 
         mouseY < videoHeight / 3 * 2 - buttonTextSize
       ) {
@@ -332,19 +431,19 @@ function mousePressed() {
           mouseX < videoWidth / 2 + buttonTextSize*10 + buttonTextSize * 3
         ){
           status = 'loading';
-          createAudioContext("theme1");
+          createAudioContext('theme1');
         } 
         else if (mouseX > videoWidth / 2 - buttonTextSize * 4 && 
           mouseX < videoWidth / 2 + buttonTextSize * 4
         ){
           status = 'loading';
-          createAudioContext("theme2");
+          createAudioContext('theme2');
         } 
         else if (mouseX > videoWidth / 2 - buttonTextSize*10 - buttonTextSize * 3 && 
           mouseX < videoWidth / 2 - buttonTextSize*10 + buttonTextSize * 3
         ){
           status = 'loading';
-          createAudioContext("theme3");
+          createAudioContext('theme3');
         }
       }
       break;
@@ -355,17 +454,67 @@ function mousePressed() {
         if (mouseX > videoWidth / 2 - buttonTextSize*5.66 - buttonTextSize * 2.5 && 
           mouseX < videoWidth / 2 - buttonTextSize*5.66 + buttonTextSize * 2.5
         ){
+          visualsPositions = [[], [], [], []];
           status = 'themeSelection';
         } 
         else if (mouseX > videoWidth / 2 + buttonTextSize*4.33 - buttonTextSize * 4 && 
           mouseX < videoWidth / 2 + buttonTextSize*4.33 + buttonTextSize * 4
         ){
+          status = 'infoPage';
+        }
+      }
+      break;
+    case 'menu':
+      if (mouseX > 79
+        && mouseX < videoWidth / 3 * 1
+      ) {
+        if (mouseY > videoHeight / 7 * 3 - buttonTextSize / 2 && 
+          mouseY < videoHeight / 7 * 3 + buttonTextSize / 2
+        ){
+          status = 'game';
+        } 
+        else if (mouseY > videoHeight / 7 * 4 - buttonTextSize / 2 && 
+          mouseY < videoHeight / 7 * 4 + buttonTextSize / 2
+        ){
           status = 'themeSelection';
+        } 
+        else if (mouseY > videoHeight / 7 * 5 - buttonTextSize / 2 && 
+          mouseY < videoHeight / 7 * 5 + buttonTextSize / 2
+        ){
+          status = 'infoPage';
+        }
+      }
+      break;
+    case 'infoPage':
+      if (mouseX > 79
+        && mouseX < videoWidth / 3 * 1
+      ) {
+        if (mouseY > videoHeight / 7 * 3 - buttonTextSize / 2 && 
+          mouseY < videoHeight / 7 * 3 + buttonTextSize / 2
+        ){
+          status = 'game';
+        } 
+        else if (mouseY > videoHeight / 7 * 4 - buttonTextSize / 2 && 
+          mouseY < videoHeight / 7 * 4 + buttonTextSize / 2
+        ){
+          status = 'themeSelection';
+        } 
+        else if (mouseY > videoHeight / 7 * 5 - buttonTextSize / 2 && 
+          mouseY < videoHeight / 7 * 5 + buttonTextSize / 2
+        ){
+          status = 'infoPage';
         }
       }
       break;
   }
-  
+}
+function mouseMoved() {
+  switch (status) {
+    case 'game':
+      status = "menu";
+      menuTimeout = 0;
+      break;
+  }
 }
 
 // Game Interaction Hands
@@ -518,7 +667,7 @@ function bottomSpeedSlider() {
   ellipse(sliderPosition, videoHeight - 32.5, 30);
 }
 
-// Visualization
+// Game Visualizations
 function chooseColor(color, value) { //value: Wert zw. 0 - 50
   // val = map (value, 0, 50 , 0, 127, false);
   val = value / 100;
