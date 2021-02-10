@@ -92,8 +92,8 @@ function defineSizes() {
   logoWidth = logoHeight / 33 * 219;
   logoHeight = window.innerHeight / 32 < 20 ? 20 : window.innerHeight / 32;
 
-  logoBigWidth = 4117/2;
-  logoBigHeight = 622/2;
+  logoBigWidth = window.innerWidth -50 > 4117/2 ? 4117/2 : window.innerWidth -50;
+  logoBigHeight = window.innerWidth > 4117/2 ? 622/2 : (window.innerWidth -20 ) / 6.5;
 
   headlineTextSize = window.innerHeight / 14 < 40 ? 40 : window.innerHeight / 14;
   buttonTextSize = window.innerHeight / 27 < 20 ? 20 : window.innerHeight / 27;
@@ -217,7 +217,10 @@ function draw() {
 function startPage() {
 
   // Logo
-  image(logo, -videoWidth/2 - logoBigWidth/2, videoHeight / 3 * 1 - logoBigHeight + headlineTextSize, logoBigWidth, logoBigHeight);
+  image(logo, 
+    -videoWidth/2 - logoBigWidth/2, 
+    videoHeight / 3 * 1 - logoBigHeight + headlineTextSize, 
+    logoBigWidth, logoBigHeight);
 
   // Hinweis-Text
   let string = "ENTER";
@@ -354,7 +357,7 @@ function gameEndedPage() {
   // Text
   textFont('freight-neo-pro');
   textSize(textTextSize);
-  string = "Wir hoffen, es hat Spaß gemacht! Zeig es gerne deinen Freunden! \n Moniek, Tobias, Hannah & Charleen";
+  string = "Wir hoffen, es hat Spaß gemacht! Zeig es gerne deinen Freunden!";
   text(string, - videoWidth / 2, videoHeight / 2);
 
   // Auswahl
