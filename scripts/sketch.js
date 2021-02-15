@@ -1,9 +1,9 @@
 // States
 let status = 'start';
-let menuTimeout = 0;
 
 let video;
 let posenet;
+let modelLoaded = false;
 let poses;
 let handPos = {
   R: {
@@ -17,7 +17,7 @@ let handPos = {
 };
 let pastHandPos = [];
 
-// Menü
+// Logo, Menü, Text
 let logo;
 let logoWidth;
 let logoHeight;
@@ -27,7 +27,52 @@ let logoBigHeight;
 let headlineTextSize = 77;
 let buttonTextSize = 40;
 let textTextSize = 32;
-let menuAlpha = 255;
+let fadeTransparency = 255;
+// Intro-Video
+let preloadIntroVideo;
+let introVideo;
+// Images
+let imgMouse;
+let imgParty;
+let imgSpeaker;
+let imgTheramin;
+// Scrolling
+let wheel = 0;
+let startLine = 0;
+// let contentText = "Erzeuge unbekannte sphärische Klänge und tauche ein in eine neue Form der experimentellen Musikerzeugung – alles gesteuert durch die bloße Bewegung deiner Hände. Aetherfon (abgeleitet von dem elektronischen Musikinstrument Theremin) ist ein auf künstlicher Intelligenz basierendes Experiment, entstanden im Rahmen des multidisziplinären Kurses AIXDESIGN an der HAW Hamburg. Ziel des Experiments ist es die User:innen spielerisch an die Themen Musik und Technik – speziell künstliche Intelligenz – zu führen und Ihnen Raum zur künstlerischen Entfaltung in Zeiten von Corona zu geben. Mit Hilfe von PoseNet, einem Machine Learning Model, das Schätzung der menschlichen Körperhaltung in Echtzeit ermöglicht, können die Handbewegungen der User:innen über die Webcam verfolgt werden. Durch diese Motion Capture sind sie in der Lage die Geschwindigkeit, Lautstärke, Audioqualität und Frequenz mehrerer Sounds, durch die bloße Bewegung ihrer Hände einzeln zu verändern und so Musik zu erzeugen. Zeitgleich wird die erschaffene Musik mittels p5.js, einer JavaScript-Bibliothek, grafisch visualisiert und animiert und gibt den User:innen zusätzlich ein visuelles Feedback zu ihrem musikalischen Spiel. Das Team hinter Aetherfon besteht aus den Studierenden Tobias Braun (B.A. Media Systems), Charleen König (B.A. Kommunikationsdesign), Hannah Pohlmann (M.A. Kommunikationsdesign) und Moniek Wiese (M.A. Kommunikationsdesign).";
+// console.log(contentText[2]);
+// while (newtextline.length <= videoWidth / 2) {
+//   newtextline += contentText[x]
+// }
+let lines = [
+  "Erzeuge unbekannte sphärische Klänge und tauche ein in eine",
+  "neue Form der experimentellen Musikerzeugung – alles",
+  "gesteuert durch die bloße Bewegung deiner Hände. Aetherfon",
+  "(abgeleitet von dem elektronischen Musikinstrument",
+  "Theremin) ist ein auf künstlicher Intelligenz basierendes",
+  "Experiment, entstanden im Rahmen des multidisziplinären",
+  "Kurses AIXDESIGN an der HAW Hamburg. Ziel des",
+  "Experiments ist es die User:innen spielerisch an die Themen",
+  "Musik und Technik – speziell künstliche Intelligenz – zu",
+  "führen und Ihnen Raum zur künstlerischen Entfaltung in",
+  "Zeiten von Corona zu geben. Mit Hilfe von PoseNet, einem",
+  "Machine Learning Model, das Schätzung der menschlichen",
+  "Körperhaltung in Echtzeit ermöglicht, können die",
+  "Handbewegungen der User:innen über die Webcam verfolgt",
+  "werden. Durch diese Motion Capture sind sie in der",
+  "Lage die Geschwindigkeit, Lautstärke, Audioqualität",
+  "und Frequenz mehrerer Sounds, durch die bloße Bewegung",
+  "ihrer Hände einzeln zu verändern und so Musik zu erzeugen.",
+  "Zeitgleich wird die erschaffene Musik mittels p5.js,",
+  "einer JavaScript-Bibliothek, grafisch visualisiert und",
+  "animiert und gibt den User:innen zusätzlich ein visuelles",
+  "Feedback zu ihrem musikalischen Spiel. Das Team hinter",
+  "Aetherfon besteht aus den Studierenden",
+  "Tobias Braun (B.A. Media Systems),",
+  "Charleen König (B.A. Kommunikationsdesign),",
+  "Hannah Pohlmann (M.A. Kommunikationsdesign) und",
+  "Moniek Wiese (M.A. Kommunikationsdesign)."
+];
 
 // Visualisierung
 let history = 2;
@@ -46,13 +91,22 @@ let imgR, imgL;
 let context;
 let source;
 let sphere;
+let sphere1;
+let sphere2;
+let sphere3;
 let sphereIsPlaying = false;
 var sphereFilter;
-
 let biquadFilters = [];
 let audioBuffers = [];
+let buffersLoaded = false;
 
 // Time
+let menuTimeIn = 0;
+let menuTimeout = 0;
+let deltaTimeJS = 0;
+let lastTimeJS = 0;
+let timeDelayJS = 0;
+let pauseTime = -1;
 let deltaTime = 0;
 let timeDelay = 2;
 let currentTime = 0;
@@ -68,7 +122,18 @@ function createAudioContext(theme) {
 
   context = new AudioContext();
 
-  sphere = new Audio(theme + "/sphere.wav");
+  // sphere = new Audio(theme + "/sphere.wav");
+  switch (theme) {
+    case 'theme1':
+      sphere = sphere1;
+      break;
+    case 'theme2':
+      sphere = sphere2;
+      break;
+    case 'theme3':
+      sphere = sphere3;
+      break;
+  }
   sphere.loop = true;
   source = context.createMediaElementSource(sphere);
   sphereFilter = context.createBiquadFilter();
@@ -83,7 +148,9 @@ function createAudioContext(theme) {
   video = createCapture(VIDEO);
   video.hide();
 
-  posenet = ml5.poseNet(video, modelHandler);
+  posenet = ml5.poseNet(video, () => {
+    modelLoaded = true;
+  });
   posenet.on('pose', getPoses);
 }
 function defineSizes() {
@@ -92,8 +159,8 @@ function defineSizes() {
   logoWidth = logoHeight / 33 * 219;
   logoHeight = window.innerHeight / 32 < 20 ? 20 : window.innerHeight / 32;
 
-  logoBigWidth = window.innerWidth -50 > 4117/2 ? 4117/2 : window.innerWidth -50;
-  logoBigHeight = window.innerWidth > 4117/2 ? 622/2 : (window.innerWidth -20 ) / 6.5;
+  logoBigWidth = window.innerWidth/4*3 -50 > 4117/2 ? 4117/2 : window.innerWidth/4*3 -50;
+  logoBigHeight = window.innerWidth/4*3 > 4117/2 ? 622/2 : (window.innerWidth/4*3 -20 ) / 6.5;
 
   headlineTextSize = window.innerHeight / 14 < 40 ? 40 : window.innerHeight / 14;
   buttonTextSize = window.innerHeight / 27 < 20 ? 20 : window.innerHeight / 27;
@@ -106,22 +173,31 @@ function defineSizes() {
 }
 
 function preload() {
-  // Logo
+  // Logo laden
   logo = loadImage('assets/logo/weiss_Aetherfon_Logo_RZ_klein.png');
   logoBig = loadImage('assets/logo/weiss_Aetherfon_Logo_RZ.png');
   
-  // Images
+  // Images laden
   imgMouse = loadImage('assets/images/mouse.jpg');
   imgParty = loadImage('assets/images/party.jpg');
   imgSpeaker = loadImage('assets/images/speaker.jpg');
   imgTheramin = loadImage('assets/images/theramin.jpg');
 
-  // Font
+  // Font laden
   fontHeader = loadFont('assets/fonts/BHVSerif-Display.otf');
 
-  // Handvisuals
+  // Handvisuals laden
   imgR = loadImage('assets/icons/R2.png');
   imgL = loadImage('assets/icons/L2.png');
+
+  // Sphären laden
+  sphere1 = new Audio("theme1/sphere.wav");
+  sphere2 = new Audio("theme2/sphere.wav");
+  sphere3 = new Audio("theme3/sphere.wav");
+
+  // Video laden
+  preloadIntroVideo = createVideo('assets/intro.mp4');
+  preloadIntroVideo.hide();
 }
 function setup() {
   
@@ -130,6 +206,10 @@ function setup() {
   background(0);
 
   createCanvas(videoWidth, videoHeight);
+  
+  // Intro-Video laden
+  introVideo = preloadIntroVideo;
+  introVideo.hide()
 
   ranges = {
     x: {
@@ -179,16 +259,35 @@ function draw() {
 
   translate(videoWidth, 0)
   background(0);
+
+  // Delta-Time für Fade-In und -Out
+  if (lastTimeJS != 0) deltaTimeJS = Date.now() - lastTimeJS;
+  lastTimeJS = Date.now();
   
+  // console.log(status);
+
   switch (status) {
     case 'start':
+      // infoPage();
       startPage();
+      break;
+    case 'startOut':
+      startOut();
+      break;
+    case 'intro':
+      introPage();
       break;
     case 'themeSelection':
       themeSelectionPage();
       break;
+    case 'themeSelectionOut':
+      themeSelectionOut();
+      break;
     case 'loading':
       loadingPage();
+      break;
+    case 'loadingOut':
+      loadingOut();
       break;
     case 'game':
       gamePage();
@@ -199,6 +298,9 @@ function draw() {
     case 'menu':
       menu();
       break;
+    case 'menuOut':
+      menuOut();
+      break;
     case 'infoPage':
       infoPage();
       break;
@@ -206,9 +308,10 @@ function draw() {
 
   // wenn das Menu eingeblendet ist, Menu nach einer Weile ausblenden
   if (status == 'menu') {
-    menuTimeout += 1;
-    if (menuTimeout > 300) {
-      status = 'game';
+    menuTimeout += deltaTimeJS;
+    if (menuTimeout > 1500) {
+      noCursor();
+      status = 'menuOut';
     }
   }
 }
@@ -217,6 +320,7 @@ function draw() {
 function startPage() {
 
   // Logo
+  tint(255)
   image(logo, 
     -videoWidth/2 - logoBigWidth/2, 
     videoHeight / 3 * 1 - logoBigHeight + headlineTextSize, 
@@ -230,9 +334,66 @@ function startPage() {
   fill(255);
   text(string, -videoWidth / 2, videoHeight / 3 * 2  - buttonTextSize);
 }
-function themeSelectionPage() {
+function startOut() {
+
+  // Fade Out
+  if (fadeTransparency > 0) {
+    fadeTransparency -= deltaTimeJS * 0.5;
+
+    // Logo
+    tint(255, fadeTransparency)
+    image(logo, 
+      -videoWidth/2 - logoBigWidth/2, 
+      videoHeight / 3 * 1 - logoBigHeight + headlineTextSize, 
+      logoBigWidth, logoBigHeight);
+
+    // Hinweis-Text
+    let string = "ENTER";
+    textFont('freight-neo-pro');
+    textSize(buttonTextSize);
+    textAlign(CENTER);
+    fill(255, fadeTransparency);
+    text(string, -videoWidth / 2, videoHeight / 3 * 2  - buttonTextSize);
+  }
+  else {
+    fadeTransparency = 0;
+    status = 'intro';
+  } 
+}
+function introPage() {
+  
+  // Fade In
+  if (fadeTransparency < 255) fadeTransparency += deltaTimeJS * 0.5;
+  else fadeTransparency = 255;
 
   // Logo
+  tint(255, fadeTransparency)
+  image(logo, -videoWidth+79, 85, logoWidth, logoHeight);
+
+  // Intro-Video
+  image(introVideo, -videoWidth, 200, videoWidth, videoWidth * 0.5625);
+  // if (introVideo.time() < introVideo.duration()) {
+  if (introVideo.time() < 2) {
+    introVideo.play();
+  } else {
+    introVideo.pause();
+
+    timeDelayJS += deltaTimeJS;
+    if (timeDelayJS >= 1500) {
+      status = 'themeSelection';
+      fadeTransparency = 0;
+      timeDelayJS = 0;
+    }
+  }
+}
+function themeSelectionPage() {
+
+  // Fade In
+  if (fadeTransparency < 255) fadeTransparency += deltaTimeJS * 0.5;
+  else fadeTransparency = 255;
+
+  // Logo
+  tint(255)
   image(logo, -videoWidth+79, 85, logoWidth, logoHeight);
     
   // Headline
@@ -240,7 +401,7 @@ function themeSelectionPage() {
   textFont(fontHeader);
   textSize(headlineTextSize);
   textAlign(CENTER);
-  fill(255);
+  fill(255, fadeTransparency);
   text(string, -videoWidth / 2, videoHeight / 3 * 1 + headlineTextSize);
 
   // Auswahl
@@ -253,8 +414,48 @@ function themeSelectionPage() {
   string = "MEDITATIV"
   text(string, - videoWidth / 2 - buttonTextSize*10, videoHeight / 3 * 2 - buttonTextSize);
 }
+function themeSelectionOut() {
+
+  // Logo
+  image(logo, -videoWidth+79, 85, logoWidth, logoHeight);
+
+  // Fade Out
+  if (fadeTransparency > 0) {
+    fadeTransparency -= deltaTimeJS * 0.5;
+
+    // Headline
+    let string = "WÄHLE EINE SOUNDWELT";
+    textFont(fontHeader);
+    textSize(headlineTextSize);
+    textAlign(CENTER);
+    fill(255, fadeTransparency);
+    text(string, -videoWidth / 2, videoHeight / 3 * 1 + headlineTextSize);
+
+    // Auswahl
+    textFont('freight-neo-pro');
+    textSize(buttonTextSize);
+    string = "SPHÄRISCH"
+    text(string, - videoWidth / 2 + buttonTextSize*10, videoHeight / 3 * 2 - buttonTextSize);
+    string = "EXPERIMENTELL"
+    text(string, - videoWidth / 2, videoHeight / 3 * 2 - buttonTextSize);
+    string = "MEDITATIV"
+    text(string, - videoWidth / 2 - buttonTextSize*10, videoHeight / 3 * 2 - buttonTextSize);
+    }
+  else {
+    fadeTransparency = 0;
+    status = 'loading';
+  }
+}
 function loadingPage() {
-  
+
+  // Fade In
+  if (fadeTransparency < 255) fadeTransparency += deltaTimeJS * 0.5;
+  else if (modelLoaded && buffersLoaded) {
+    fadeTransparency = 255;
+    status = 'loadingOut';
+  }
+  else fadeTransparency = 255;
+
   // Logo
   image(logo, -videoWidth+79, 85, logoWidth, logoHeight);
 
@@ -263,11 +464,35 @@ function loadingPage() {
   textFont(fontHeader);
   textSize(headlineTextSize);
   textAlign(CENTER);
-  fill(255);
+  fill(255, fadeTransparency);
   text(string, -videoWidth / 2, videoHeight / 3 * 1 + headlineTextSize);
+}
+function loadingOut() {
+
+  // Fade Out
+  if (fadeTransparency > 0) {
+    fadeTransparency -= deltaTimeJS * 0.5;
+
+    // Logo
+    tint(255, fadeTransparency)
+    image(logo, -videoWidth+79, 85, logoWidth, logoHeight);
+
+    // Hinweis-Text
+    let string = "POSENET WIRD GELADEN";
+    textFont(fontHeader);
+    textSize(headlineTextSize);
+    textAlign(CENTER);
+    fill(255, fadeTransparency);
+    text(string, -videoWidth / 2, videoHeight / 3 * 1 + headlineTextSize);
+  }
+  else {
+    fadeTransparency = 0;
+    status = 'game';
+  }
 }
 function gamePage() {  
 
+  noCursor();
   scale(-1, 1)
 
   // Hand-Positionen erkennen
@@ -343,7 +568,14 @@ function gamePage() {
 }
 function gameEndedPage() {
 
+  cursor();
+
+  // Fade In
+  if (fadeTransparency < 255) fadeTransparency += deltaTimeJS * 0.5;
+  else fadeTransparency = 255;
+
   // Logo
+  tint(255, fadeTransparency);
   image(logo, -videoWidth+79, 85, logoWidth, logoHeight);
     
   // Headline
@@ -351,7 +583,7 @@ function gameEndedPage() {
   textFont(fontHeader);
   textSize(headlineTextSize);
   textAlign(CENTER);
-  fill(255);
+  fill(255, fadeTransparency);
   text(string, -videoWidth / 2, videoHeight / 3 * 1 + headlineTextSize);
 
   // Text
@@ -367,9 +599,50 @@ function gameEndedPage() {
   string = "ÜBER AETHERFON";
   text(string, - videoWidth / 2 + buttonTextSize*4.33, videoHeight / 3 * 2 - buttonTextSize);
 }
-function menu(){
+function gameEndedOut() {
 
   // Logo
+  image(logo, -videoWidth+79, 85, logoWidth, logoHeight);
+
+  // FadeOut
+  if (fadeTransparency > 0) {
+    fadeTransparency -= deltaTimeJS * 0.5;
+
+    // Headline
+    let string = "GEIL GEMACHT!";
+    textFont(fontHeader);
+    textSize(headlineTextSize);
+    textAlign(CENTER);
+    fill(255, fadeTransparency);
+    text(string, -videoWidth / 2, videoHeight / 3 * 1 + headlineTextSize);
+
+    // Text
+    textFont('freight-neo-pro');
+    textSize(textTextSize);
+    string = "Wir hoffen, es hat Spaß gemacht! Zeig es gerne deinen Freunden!";
+    text(string, - videoWidth / 2, videoHeight / 2);
+
+    // Auswahl
+    textSize(buttonTextSize);
+    string = "NOCHMAL";
+    text(string, - videoWidth / 2 - buttonTextSize*5.66, videoHeight / 3 * 2 - buttonTextSize);
+    string = "ÜBER AETHERFON";
+    text(string, - videoWidth / 2 + buttonTextSize*4.33, videoHeight / 3 * 2 - buttonTextSize);
+  }
+  else fadeTransparency = 0;
+
+  
+}
+function menu(){
+
+  visualsPaused();
+
+  // Fade In
+  if (fadeTransparency < 255) fadeTransparency += deltaTimeJS * 0.5;
+  else fadeTransparency = 255;
+
+  // Logo
+  tint(255, fadeTransparency);
   image(logo, -videoWidth+79, 85, logoWidth, logoHeight);
 
   // Hinweis-Text
@@ -377,7 +650,7 @@ function menu(){
   textFont('freight-neo-pro');
   textSize(buttonTextSize);
   textAlign(LEFT);
-  fill(255);
+  fill(255, fadeTransparency);
   text(string, -videoWidth + 79, videoHeight / 7 * 3);
 
   string = "NEU STARTEN";
@@ -385,31 +658,94 @@ function menu(){
 
   string = "ÜBER AETHERFON";
   text(string, -videoWidth + 79, videoHeight / 7 * 5);
+
+  string = "Datenschutz - Impressum";
+  textSize(textTextSize/2);
+  fill(255);
+  text(string, -videoWidth + 79, videoHeight -75);
+  
+}
+function menuOut(){
+
+  visualsPaused();
+
+  // Fade Out
+  if (fadeTransparency > 0) {
+    fadeTransparency -= deltaTimeJS * 0.25;
+
+    // Logo
+    tint(255, fadeTransparency);
+    image(logo, -videoWidth+79, 85, logoWidth, logoHeight);
+
+    // Hinweis-Text
+    let string = "FORTSETZEN";
+    textFont('freight-neo-pro');
+    textSize(buttonTextSize);
+    textAlign(LEFT);
+    fill(255, fadeTransparency);
+    text(string, -videoWidth + 79, videoHeight / 7 * 3);
+
+    string = "NEU STARTEN";
+    text(string, -videoWidth + 79, videoHeight / 7 * 4);
+
+    string = "ÜBER AETHERFON";
+    text(string, -videoWidth + 79, videoHeight / 7 * 5);
+
+    textSize(textTextSize);
+    string = "Datenschutz - Impressum";
+    text(string, -videoWidth + 79, videoHeight -75);
+  }
+  else {
+    fadeTransparency = 0;
+    status = 'game';
+  }
 }
 function infoPage(){
 
   // Logo
+  tint(255);
   image(logo, -videoWidth+79, 85, logoWidth, logoHeight);
 
-  // Hinweis-Text
+  // Hintergrundbild
+  tint(255, 51);
+  image(imgTheramin, -videoHeight * 0.8, 0, videoHeight * 0.8, videoHeight);
+
+  // Buttons
   let string = "FORTSETZEN";
   textFont('freight-neo-pro');
   textSize(buttonTextSize);
   textAlign(LEFT);
-  fill(255);
-  text(string, -videoWidth + 79, videoHeight / 7 * 3);
+  fill(255, 155);
+  rect(-videoWidth + 79, videoHeight / 7 * 3 - textTextSize / 2, textTextSize/2*3, 3);
+  text(string, -videoWidth + 167, videoHeight / 7 * 3);
 
   string = "NEU STARTEN";
-  text(string, -videoWidth + 79, videoHeight / 7 * 4);
+  fill(255, 115);
+  rect(-videoWidth + 79, videoHeight / 7 * 4 - textTextSize / 2, textTextSize/2*3, 3);
+  text(string, -videoWidth + 167, videoHeight / 7 * 4);
 
   string = "ÜBER AETHERFON";
-  text(string, -videoWidth + 79, videoHeight / 7 * 5);
+  fill(255);
+  rect(-videoWidth + 79 + textTextSize/2*3, videoHeight / 7 * 5 - textTextSize/5*6, 3, textTextSize/2*3);
+  text(string, -videoWidth + 167, videoHeight / 7 * 5);
 
-  string = "Erzeuge unbekannte sphärische Klänge und tauche ein in eine neue Form der experimentellen Musikerzeugung – alles gesteuert durch die bloße Bewegung deiner Hände. Aetherfon (abgeleitet von dem elektronischen Musikinstrument Theremin) ist ein auf künstlicher Intelligenz basierendes Experiment, entstanden im Rahmen des multidisziplinären Kurses AIXDESIGN an der HAW Hamburg. Ziel des Experiments ist es die User:innen spielerisch an die Themen Musik und Technik – speziell künstliche Intelligenz – zu führen und Ihnen Raum zur künstlerischen Entfaltung in Zeiten von Corona zu geben. Mit Hilfe von PoseNet, einem Machine Learning Model, das Schätzung der menschlichen Körperhaltung in Echtzeit ermöglicht, können die Handbewegungen der User:innen über die Webcam verfolgt werden. Durch diese Motion Capture sind sie in der Lage die Geschwindigkeit, Lautstärke, Audioqualität und Frequenz mehrerer Sounds, durch die bloße Bewegung ihrer Hände einzeln zu verändern und so Musik zu erzeugen. Zeitgleich wird die erschaffene Musik mittels p5.js, einer JavaScript-Bibliothek, grafisch visualisiert und animiert und gibt den User:innen zusätzlich ein visuelles Feedback zu ihrem musikalischen Spiel. Das Team hinter Aetherfon besteht aus den Studierenden Tobias Braun (B.A. Media Systems), Charleen König (B.A. Kommunikationsdesign), Hannah Pohlmann (M.A. Kommunikationsdesign) und Moniek Wiese (M.A. Kommunikationsdesign).";
+  string = "Datenschutz - Impressum";
+  textSize(textTextSize / 2);
+  fill(255);
+  text(string, -videoWidth + 79, videoHeight -75);
+
+  // Text  
+  // string = "Erzeuge unbekannte sphärische Klänge und tauche ein in eine neue Form der experimentellen Musikerzeugung – alles gesteuert durch die bloße Bewegung deiner Hände. Aetherfon (abgeleitet von dem elektronischen Musikinstrument Theremin) ist ein auf künstlicher Intelligenz basierendes Experiment, entstanden im Rahmen des multidisziplinären Kurses AIXDESIGN an der HAW Hamburg. Ziel des Experiments ist es die User:innen spielerisch an die Themen Musik und Technik – speziell künstliche Intelligenz – zu führen und Ihnen Raum zur künstlerischen Entfaltung in Zeiten von Corona zu geben. Mit Hilfe von PoseNet, einem Machine Learning Model, das Schätzung der menschlichen Körperhaltung in Echtzeit ermöglicht, können die Handbewegungen der User:innen über die Webcam verfolgt werden. Durch diese Motion Capture sind sie in der Lage die Geschwindigkeit, Lautstärke, Audioqualität und Frequenz mehrerer Sounds, durch die bloße Bewegung ihrer Hände einzeln zu verändern und so Musik zu erzeugen. Zeitgleich wird die erschaffene Musik mittels p5.js, einer JavaScript-Bibliothek, grafisch visualisiert und animiert und gibt den User:innen zusätzlich ein visuelles Feedback zu ihrem musikalischen Spiel. Das Team hinter Aetherfon besteht aus den Studierenden Tobias Braun (B.A. Media Systems), Charleen König (B.A. Kommunikationsdesign), Hannah Pohlmann (M.A. Kommunikationsdesign) und Moniek Wiese (M.A. Kommunikationsdesign).";
   textSize(textTextSize);
-  text(string, -videoWidth / 5 * 3, videoHeight / 4, videoWidth / 5 * 2);
-}
+  fill(255);
 
+  // startLine = startLine + wheel <= 0 ? 0 : startLine + wheel;
+  startLine = wheel;  
+  for (x = 0; x < 15; x ++) {
+    text(lines[x + startLine], -videoWidth / 5 * 3, videoHeight * 0.22 + textTextSize/3*4 * x)
+  }
+  rect(-videoWidth / 9, videoHeight * 0.22 + startLine * textTextSize/4*3, 5, videoHeight * 0.3, 2.5)
+}
 
 // Page Interaction Mouse
 function mousePressed() {  
@@ -421,7 +757,7 @@ function mousePressed() {
         if (mouseX > videoWidth / 2 - buttonTextSize * 2 && 
           mouseX < videoWidth / 2 + buttonTextSize * 2
         ) {
-          status = 'themeSelection';
+            status = 'startOut';
         }
       }
       break;
@@ -433,19 +769,22 @@ function mousePressed() {
         if (mouseX > videoWidth / 2 + buttonTextSize*10 - buttonTextSize * 3 && 
           mouseX < videoWidth / 2 + buttonTextSize*10 + buttonTextSize * 3
         ){
-          status = 'loading';
+          fadeTransparency = 255;
+          status = 'themeSelectionOut';
           createAudioContext('theme1');
         } 
         else if (mouseX > videoWidth / 2 - buttonTextSize * 4 && 
           mouseX < videoWidth / 2 + buttonTextSize * 4
         ){
-          status = 'loading';
+          fadeTransparency = 255;
+          status = 'themeSelectionOut';
           createAudioContext('theme2');
         } 
         else if (mouseX > videoWidth / 2 - buttonTextSize*10 - buttonTextSize * 3 && 
           mouseX < videoWidth / 2 - buttonTextSize*10 + buttonTextSize * 3
         ){
-          status = 'loading';
+          fadeTransparency = 255;
+          status = 'themeSelectionOut';
           createAudioContext('theme3');
         }
       }
@@ -474,11 +813,14 @@ function mousePressed() {
         if (mouseY > videoHeight / 7 * 3 - buttonTextSize / 2 && 
           mouseY < videoHeight / 7 * 3 + buttonTextSize / 2
         ){
-          status = 'game';
+          noCursor();
+          fadeTransparency = 255;
+          status = 'menuOut';
         } 
         else if (mouseY > videoHeight / 7 * 4 - buttonTextSize / 2 && 
           mouseY < videoHeight / 7 * 4 + buttonTextSize / 2
         ){
+          fadeTransparency = 0;
           status = 'themeSelection';
         } 
         else if (mouseY > videoHeight / 7 * 5 - buttonTextSize / 2 && 
@@ -500,6 +842,7 @@ function mousePressed() {
         else if (mouseY > videoHeight / 7 * 4 - buttonTextSize / 2 && 
           mouseY < videoHeight / 7 * 4 + buttonTextSize / 2
         ){
+          visualsPositions = [[], [], [], []];
           status = 'themeSelection';
         } 
         else if (mouseY > videoHeight / 7 * 5 - buttonTextSize / 2 && 
@@ -513,11 +856,26 @@ function mousePressed() {
 }
 function mouseMoved() {
   switch (status) {
+
     case 'game':
-      status = "menu";
-      menuTimeout = 0;
+      if (timeDelayJS < 500) {
+        timeDelayJS += deltaTimeJS;
+      }
+      else {
+        timeDelayJS = 0;
+        menuTimeout = 0;
+        pauseTime = context.currentTime;
+        status = "menu";
+      }
       break;
+    case 'menu':
+      cursor();
+      menuTimeout = 0;
   }
+}
+function mouseWheel(event) {
+  wheel = wheel + event.delta/3 <= 0 ? 0 : wheel + event.delta/3 > lines.length-15 ? lines.length-15 : wheel + event.delta/3;
+  console.log(wheel);
 }
 
 // Game Interaction Hands
@@ -626,7 +984,7 @@ function topArea() {
     var detune = 100;
     var frequency = map(handPos.R.y, ranges.y3.high, ranges.y3.low, 500, 5000);// + random *50 -25;
     var Q = map(handPos.R.x, ranges.x3.low, ranges.x3.high, 0, 50, true);// + random *10 -5;
-    var gain = map(handPos.R.x, ranges.x3.low, ranges.x3.high, 0, 3, true);
+    var gain = map(handPos.R.x, ranges.x3.low, ranges.x3.high, 0, 1, true);
 
     if (context.currentTime < endTime) {
       loopTimes[3] += deltaTime;
@@ -841,6 +1199,50 @@ function visualsAreas() {
     }
   }
 }
+function visualsPaused() {
+  scale(-1, 1);
+
+  translate(videoWidth / 2, videoHeight / 2);
+
+  let RESCALE = 2;
+  let MAXTRANSPARENCY = 20;   // Maximale Transparenz eines Layers der Visualisierung
+  let VISUSIZE = 100 * RESCALE;          // Größe der Visualisierung
+  let MOVEAREA = 100 * RESCALE;          // Größe der Visualisierung
+  let STEP = 3 * RESCALE;
+
+  // Visuals
+  if (visualsPositions[0].length) {
+    let noiseMaxBeat = 0;
+    let noiseHeightBeat = 0;
+    let transparencyBeat = 0;
+    let lastSound = visualsPositions[0][visualsPositions[0].length -1][0]; // Spielzeit vom letzten Sound
+    let deltaSound = pauseTime - lastSound; // Zeit die seit dem letzten Sound vergangen ist
+    if (deltaSound < 2) {
+      //radiusBeat = map(deltaSound, 0, 2, 50, 0, true);
+      noiseMaxBeat = map(deltaSound, 0, 4, 0.65, 0, true);
+      noiseHeightBeat = map(deltaSound, 0, 4, 100, 0, true);
+      transparencyBeat = map(deltaSound, 0, 2, MAXTRANSPARENCY, 0, true);
+    }
+    for (let i = VISUSIZE; i > 0; i -= STEP) {
+        noStroke();
+        fill(255, 255, 255, transparencyBeat );//- (i/2));
+        beginShape();
+        for (let a = 0; a < TWO_PI; a += 0.01) {
+            let xoff = map(cos(a), -1, 1, 0, noiseMaxBeat, true);
+            let yoff = map(sin(a), -1, 1, 0, noiseMaxBeat, true);
+            let r = map(noise(xoff, yoff), 0, 1, VISUSIZE * 2, VISUSIZE * 2 + noiseHeightBeat, true) - (i*4);
+            let x = r > 0 ? r * cos(a) : 0;
+            let y = r > 0 ? r * sin(a) : 0;
+            vertex(x, y);
+        }
+        endShape(CLOSE);
+    }
+  }
+
+  translate(-videoWidth / 2, -videoHeight / 2);
+
+  scale(-1, 1);
+}
 
 // Audio
 function getAudioData(i, theme) {
@@ -854,6 +1256,8 @@ function getAudioData(i, theme) {
     context.decodeAudioData(undecodedAudio, function (buffer) {
       audioBuffers[i] = buffer;
     });
+
+    buffersLoaded = true;
   };
   request.send();
 
@@ -907,10 +1311,6 @@ function playSoundLeft(detune, frequency, Q, gain) {
  }*/
 
 // Posemodel
-function modelHandler() {
-  // console.log('Model loaded');
-  status = 'game';
-}
 function getPoses(results) {
   if (results.length > 0) {
     poses = results[0].pose;
