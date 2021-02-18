@@ -157,7 +157,7 @@ let pauseTime = -1;
 let deltaTime = 0;
 let timeDelay = 2;
 let currentTime = 0;
-let endTime = 5 // 50; // 120; // sec
+let endTime = 50; // 120; // sec
 let loopTimes = [0, 0, 0, 0]
 let isPlaying = [false, false, false, false];
 // Tempo
@@ -546,8 +546,8 @@ function introPage() {
   // Intro-Video
   image(introVideo, -videoWidth, videoHeight/2 - videoWidth * 0.5625 / 2, videoWidth, videoWidth * 0.5625);
 
-  // if (introVideo.time() < introVideo.duration()) {
-  if (introVideo.time() < 2) {
+  if (introVideo.time() < introVideo.duration()) {
+  // if (introVideo.time() < 2) {
     introVideo.play();
   } else {
     introVideo.pause();
