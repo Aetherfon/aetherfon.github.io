@@ -39,45 +39,84 @@ let imgTheramin;
 // Scrolling
 let wheel = 0;
 let startLine = 0;
-// let contentText = "Erzeuge unbekannte sphärische Klänge und tauche ein in eine neue Form der experimentellen Musikerzeugung – alles gesteuert durch die bloße Bewegung deiner Hände. Aetherfon (abgeleitet von dem elektronischen Musikinstrument Theremin) ist ein auf künstlicher Intelligenz basierendes Experiment, entstanden im Rahmen des multidisziplinären Kurses AIXDESIGN an der HAW Hamburg. Ziel des Experiments ist es die User:innen spielerisch an die Themen Musik und Technik – speziell künstliche Intelligenz – zu führen und Ihnen Raum zur künstlerischen Entfaltung in Zeiten von Corona zu geben. Mit Hilfe von PoseNet, einem Machine Learning Model, das Schätzung der menschlichen Körperhaltung in Echtzeit ermöglicht, können die Handbewegungen der User:innen über die Webcam verfolgt werden. Durch diese Motion Capture sind sie in der Lage die Geschwindigkeit, Lautstärke, Audioqualität und Frequenz mehrerer Sounds, durch die bloße Bewegung ihrer Hände einzeln zu verändern und so Musik zu erzeugen. Zeitgleich wird die erschaffene Musik mittels p5.js, einer JavaScript-Bibliothek, grafisch visualisiert und animiert und gibt den User:innen zusätzlich ein visuelles Feedback zu ihrem musikalischen Spiel. Das Team hinter Aetherfon besteht aus den Studierenden Tobias Braun (B.A. Media Systems), Charleen König (B.A. Kommunikationsdesign), Hannah Pohlmann (M.A. Kommunikationsdesign) und Moniek Wiese (M.A. Kommunikationsdesign).";
-// console.log(contentText[2]);
-// while (newtextline.length <= videoWidth / 2) {
-//   newtextline += contentText[x]
-// }
-let lines = [
-  "Erzeuge unbekannte sphärische Klänge und tauche ein in eine",
-  "neue Form der experimentellen Musikerzeugung – alles",
-  "gesteuert durch die bloße Bewegung deiner Hände. Aetherfon",
-  "(abgeleitet von dem elektronischen Musikinstrument",
-  "Theremin) ist ein auf künstlicher Intelligenz basierendes",
-  "Experiment, entstanden im Rahmen des multidisziplinären",
-  "Kurses AIXDESIGN an der HAW Hamburg. Ziel des",
-  "Experiments ist es die User:innen spielerisch an die Themen",
-  "Musik und Technik – speziell künstliche Intelligenz – zu",
-  "führen und Ihnen Raum zur künstlerischen Entfaltung in",
-  "Zeiten von Corona zu geben. Mit Hilfe von PoseNet, einem",
-  "Machine Learning Model, das Schätzung der menschlichen",
-  "Körperhaltung in Echtzeit ermöglicht, können die",
-  "Handbewegungen der User:innen über die Webcam verfolgt",
-  "werden. Durch diese Motion Capture sind sie in der",
-  "Lage die Geschwindigkeit, Lautstärke, Audioqualität",
-  "und Frequenz mehrerer Sounds, durch die bloße Bewegung",
-  "ihrer Hände einzeln zu verändern und so Musik zu erzeugen.",
-  "Zeitgleich wird die erschaffene Musik mittels p5.js,",
-  "einer JavaScript-Bibliothek, grafisch visualisiert und",
-  "animiert und gibt den User:innen zusätzlich ein visuelles",
-  "Feedback zu ihrem musikalischen Spiel. Das Team hinter",
-  "Aetherfon besteht aus den Studierenden",
-  "Tobias Braun (B.A. Media Systems),",
-  "Charleen König (B.A. Kommunikationsdesign),",
-  "Hannah Pohlmann (M.A. Kommunikationsdesign) und",
-  "Moniek Wiese (M.A. Kommunikationsdesign)."
+let infoTextWords = [
+  "Erzeuge ",  "unbekannte ",  "sphärische ",  "Klänge ",  "und ",  "tauche ",  "ein ",  "in ",  "eine ",
+  "neue ",  "Form ",  "der ",  "experimentellen ",  "Musikerzeugung ",  "– ",  "alles ",
+  "gesteuert ",  "durch ",  "die ", "bloße ", "Bewegung ", "deiner ", "Hände. ", 
+  "Aetherfon ", "(abgeleitet ", "von ", "dem ", "elektronischen ", "Musikinstrument ", "Theremin) ", 
+  "ist ", "ein ", "auf ", "künstlicher ", "Intelligenz ", "basierendes ", "Experiment, ", 
+  "entstanden ", "im ", "Rahmen ", "des ", "multidisziplinären ", "Kurses ", "AIXDESIGN ", 
+  "an ", "der ", "HAW Hamburg. ", "\n", "\n", 
+  "Ziel ", "des ", "Experiments ", "ist ", "es ", "die ", "User:innen ", 
+  "spielerisch ", "an ", "die ", "Themen ", "Musik ", "und ", "Technik ", "– ", "speziell ", 
+  "künstliche ", "Intelligenz ", "– ", "zu ", "führen ", "und ", "Ihnen ", "Raum ", "zur ", 
+  "künstlerischen ", "Entfaltung ", "in ", "Zeiten ", "von ", "Corona ", "zu ", "geben. ", 
+  "Mit ", "Hilfe ", "von ", "PoseNet, ", "einem ", "Machine ", "Learning ", "Model, ", 
+  "das ", "Schätzung ", "der ", "menschlichen ", "Körperhaltung ", "in ", "Echtzeit ", 
+  "ermöglicht, ", "können ", "die ", "Handbewegungen ", "der ", "User:innen ", "über ", 
+  "die ", "Webcam ", "verfolgt ", "werden. ", "\n", "\n", 
+  "Durch ", "diese ", "Motion ", "Capture ", "sind ", "sie ", "in ", "der ", "Lage ", "die ", 
+  "Geschwindigkeit, ", "Lautstärke, ", "Audioqualität ", "und ", "Frequenz ", "mehrerer ", 
+  "Sounds, ", "durch ", "die ", "bloße ",   "Bewegung ", "ihrer ", "Hände ", "einzeln ", 
+  "zu ", "verändern ", "und ", "so Musik ", "zu ", "erzeugen. ", "Zeitgleich ", "wird ", 
+  "die ", "erschaffene ", "Musik ", "mittels ", "p5.js, ", "einer ", "JavaScript-", "Bibliothek, ", 
+  "grafisch ", "visualisiert ", "und ", "animiert ", "und ", "gibt ", "den ", "User:innen ", 
+  "zusätzlich ", "ein ", "visuelles ", "Feedback ", "zu ", "ihrem ", "musikalischen ", "Spiel. ", "\n", "\n", 
+  "Das ", "Team ", "hinter ", "Aetherfon ", "besteht ", "aus ", "den ", "Studierenden ",  "\n", "\n",
+  "Tobias Braun ", "(B.A. Media Systems), ", "\n",
+  "Charleen König ", "(B.A. Kommunikationsdesign), ",  "\n",
+  "Hannah Pohlmann ", "(M.A. Kommunikationsdesign) und ",  "\n",
+  "Moniek Wiese ", "(M.A. Kommunikationsdesign)."
 ];
+let lines = [[]];
+let imprintTextWords = [
+  "Impressum", "\n",
+  "Informationspflicht ", "laut ", "§ 5 TMG.", "\n", "\n",
+  "Tobias Braun ", "\n",
+  "Charleen König ", "\n",
+  "Hannah Pohlmann ", "\n",
+  "Moniek Wiese ", "\n", "\n",
+  "E-mail:",  "\n", 
+  "aetherfon@gmail.com", "\n", "\n", 
+  "Quelle: ", "Erstellt ", "mit ", "dem ", "Impressum ", "Generator ", "von ", "AdSimple ", "in ", "Kooperation ", "mit ", "123familie.de", "\n", "\n", 
+  "Design ", "und ", "Umsetzung", "\n",
+  "Tobias Braun", "\n", 
+  "Charleen König", "\n", 
+  "Hannah Pohlmann", "\n", 
+  "Moniek Wiese", "\n", "\n",
+  "Das ", "Projekt ", "Aetherfon ", "ist ", "im ", "Kurs ", "Aix.Design ", "entstanden, ", 
+  "unter ", "der ", "Leitung ", "von ", "Prof. ", "Peter ", "Kabel ", 
+  "Hochschule ", "für ", "Angewandte ", "Wissenschaften ", "Hamburg ", "(HAW)",
+  "Finkenau ", "35", "\n",
+  "22081 ", "Hamburg", "\n",
+  "Deutschland", "\n", "\n",
+"EU-Streitschlichtung", "\n",
+"Gemäß ", "Verordnung ", "über ", "Online-Streitbeilegung ", "in ", "Verbraucherangelegenheiten ", "(ODR-Verordnung) ", "möchten ", "wir ", "Sie ", "über ", "die ", "Online-Streitbeilegungsplattform ", "(OS-Plattform) ", "informieren. ", "\n",
+"Verbraucher ", "haben ", "die ", "Möglichkeit, ", "Beschwerden ", "an ", "die ", "Online ", "Streitbeilegungsplattform ", "der ", "Europäischen ", "Kommission ", "unter ", "http://ec.europa.eu/odr?tid=321260393 ", "zu ", "richten. ", "Die ", "dafür ", "notwendigen ", "Kontaktdaten ", "finden ", "Sie ", "oberhalb ", "in ", "unserem ", "Impressum. ", "\n",
+"Wir ", "möchten ", "Sie ", "jedoch ", "darauf ", "hinweisen, ", "dass ", "wir ", "nicht ", "bereit ", "oder ", "verpflichtet ", "sind, ", "an ", "Streitbeilegungsverfahren ", "vor ", "einer ", "Verbraucherschlichtungsstelle ", "teilzunehmen. ", "\n",
+"Haftung ", "für ", "Inhalte ", "dieser ", "Website ", "\n",
+"Wir ", "entwickeln ", "die ", "Inhalte ", "dieser ", "Webseite ", "ständig ", "weiter ", "und ", "bemühen ", "uns ", "korrekte ", "und ", "aktuelle ", "Informationen ", "bereitzustellen. ", "Laut ", "Telemediengesetz ", "(TMG) ", "§7 ", "(1) ", "sind ", "wir ", "als ", "Diensteanbieter ", "für ", "eigene ", "Informationen, ", "die ", "wir ", "zur ", "Nutzung ", "bereitstellen, ", "nach ", "den ", "allgemeinen ", "Gesetzen ", "verantwortlich. ", "Leider ", "können ", "wir ", "keine ", "Haftung ", "für ", "die ", "Korrektheit ", "aller ", "Inhalte ", "auf ", "dieser ", "Webseite ", "übernehmen, ", "speziell ", "für ", "jene ", "die ", "seitens ", "Dritter ", "bereitgestellt ", "wurden. ", "Als ", "Diensteanbieter ", "im ", "Sinne ", "der ", "§§ ", "8 ", "bis ", "10 ", "sind ", "wir ", "nicht ", "verpflichtet, ", "die ", "von ", "ihnen ", "übermittelten ", "oder ", "gespeicherten ", "Informationen ", "zu ", "überwachen ", "oder ", "nach ", "Umständen ", "zu ", "forschen, ", "die ", "auf ", "eine ", "rechtswidrige ", "Tätigkeit ", "hinweisen. ", "\n",
+"Unsere ", "Verpflichtungen ", "zur ", "Entfernung ", "von ", "Informationen ", "oder ", "zur ", "Sperrung ", "der ", "Nutzung ", "von ", "Informationen ", "nach ", "den ", "allgemeinen ", "Gesetzen ", "aufgrund ", "von ", "gerichtlichen ", "oder ", "behördlichen ", "Anordnungen ", "bleiben ", "auch ", "im ", "Falle ", "unserer ", "Nichtverantwortlichkeit ", "nach ", "den ", "§§ ", "8 ", "bis ", "10 ", "unberührt. ", "\n",
+"Sollten ", "Ihnen ", "problematische ", "oder ", "rechtswidrige ", "Inhalte ", "auffallen, ", "bitte ", "wir ", "Sie ", "uns ", "umgehend ", "zu ", "kontaktieren, ", "damit ", "wir ", "die ", "rechtswidrigen ", "Inhalte ", "entfernen ", "können. ", "Sie ", "finden ", "die ", "Kontaktdaten ", "im ", "Impressum. ", "\n",
+"Haftung ", "für ", "Links ", "auf ", "dieser ", "Website ", "\n",
+"Unsere ", "Webseite ", "enthält ", "Links ", "zu ", "anderen ", "Webseiten ", "für ", "deren ", "Inhalt ", "wir ", "nicht ", "verantwortlich ", "sind. ", "Haftung ", "für ", "verlinkte ", "Websites ", "besteht ", "für ", "uns ", "nicht, ", "da ", "wir ", "keine ", "Kenntnis ", "rechtswidriger ", "Tätigkeiten ", "hatten ", "und ", "haben, ", "uns ", "solche ", "Rechtswidrigkeiten ", "auch ", "bisher ", "nicht ", "aufgefallen ", "sind ", "und ", "wir ", "Links ", "sofort ", "entfernen ", "würden, ", "wenn ", "uns ", "Rechtswidrigkeiten ", "bekannt ", "werden. ", "\n",
+"Wenn ", "Ihnen ", "rechtswidrige ", "Links ", "auf ", "unserer ", "Website ", "auffallen, ", "bitte ", "wir ", "Sie ", "uns ", "zu ", "kontaktieren. ", "Sie ", "finden ", "die ", "Kontaktdaten ", "im ", "Impressum. ", "\n",
+"Urheberrechtshinweis ", "\n",
+"Alle ", "Inhalte ", "dieser ", "Webseite ", "(Bilder, ", "Fotos, ", "Texte, ", "Videos) ", "unterliegen ", "dem ", "Urheberrecht ", "der ", "Bundesrepublik ", "Deutschland. ", "Bitte ", "fragen ", "Sie ", "uns ", "bevor ", "Sie ", "die ", "Inhalte ", "dieser ", "Website ", "verbreiten, ", "vervielfältigen ", "oder ", "verwerten ", "wie ", "zum ", "Beispiel ", "auf ", "anderen ", "Websites ", "erneut ", "veröffentlichen. ", "Falls ", "notwendig, ", "werden ", "wir ", "die ", "unerlaubte ", "Nutzung ", "von ", "Teilen ", "der ", "Inhalte ", "unserer ", "Seite ", "rechtlich ", "verfolgen. ", "\n",
+"Sollten ", "Sie ", "auf ", "dieser ", "Webseite ", "Inhalte ", "finden, ", "die ", "das ", "Urheberrecht ", "verletzen, ", "bitten ", "wir ", "Sie ", "uns ", "zu ", "kontaktieren. ", "\n",
+"Bildernachweis ", "\n",
+"Die ", "Bilder, ", "Fotos ", "und ", "Grafiken ", "auf ", "dieser ", "Webseite ", "sind ", "urheberrechtlich ", "geschützt. ", "\n",
+"Die ", "Bilderrechte ", "liegen ", "bei ", "den ", "folgenden ", "Fotografen ", "und ", "Unternehmen: ", "\n",
+"•"
+];
+let imprintLines = [[]];
+let leftEdge;
+let mouseClickable = false;
 
 // Visualisierung
 let history = 2;
-let videoWidth = 640;
-let videoHeight = 480;
+let videoWidth = window.innerWidth;
+let videoHeight = window.innerHeight;
 let ranges = {};
 // Bottom Speed-Slider
 let sliderPosition = videoWidth / 2;
@@ -86,6 +125,14 @@ let visualsPositions = [[], [], [], []];
 let visualsRadius = 100;
 // Hands
 let imgR, imgL;
+// FakeVisu
+let startTimeJS2 = Date.now()
+let startTimeJS = [Date.now(), Date.now(), Date.now()];
+let fakeNoiseCounter = [0, 0, 0];
+let fakeNoiseColor = [0, 2, 2];
+let fakeNoisePos = [2250, 2250, 2250];
+let fakeNoiseMovement = [1000, 1000, 1000];
+let fakeNoiseColorchange = [0, 1, 1];
 
 // Audio
 let context;
@@ -110,7 +157,7 @@ let pauseTime = -1;
 let deltaTime = 0;
 let timeDelay = 2;
 let currentTime = 0;
-let endTime = 50; // 120; // sec
+let endTime = 5 // 50; // 120; // sec
 let loopTimes = [0, 0, 0, 0]
 let isPlaying = [false, false, false, false];
 // Tempo
@@ -122,18 +169,18 @@ function createAudioContext(theme) {
 
   context = new AudioContext();
 
-  // sphere = new Audio(theme + "/sphere.wav");
-  switch (theme) {
-    case 'theme1':
-      sphere = sphere1;
-      break;
-    case 'theme2':
-      sphere = sphere2;
-      break;
-    case 'theme3':
-      sphere = sphere3;
-      break;
-  }
+  sphere = new Audio(theme + "/sphere.wav");
+  // switch (theme) {
+  //   case 'theme1':
+  //     sphere = sphere1;
+  //     break;
+  //   case 'theme2':
+  //     sphere = sphere2;
+  //     break;
+  //   case 'theme3':
+  //     sphere = sphere3;
+  //     break;
+  // }
   sphere.loop = true;
   source = context.createMediaElementSource(sphere);
   sphereFilter = context.createBiquadFilter();
@@ -156,26 +203,96 @@ function createAudioContext(theme) {
 function defineSizes() {
 
   // Menü
-  logoWidth = logoHeight / 33 * 219;
   logoHeight = window.innerHeight / 32 < 20 ? 20 : window.innerHeight / 32;
+  logoWidth = logoHeight / 33 * 219;
 
-  logoBigWidth = window.innerWidth/4*3 -50 > 4117/2 ? 4117/2 : window.innerWidth/4*3 -50;
-  logoBigHeight = window.innerWidth/4*3 > 4117/2 ? 622/2 : (window.innerWidth/4*3 -20 ) / 6.5;
+  logoBigWidth = window.innerWidth/4*3 -50 > 4117/2 ? 4117/2 : window.innerWidth/4*2 -50;
+  logoBigHeight = window.innerWidth/4*3 > 4117/2 ? 622/2 : (window.innerWidth/4*2 -20 ) / 6.5;
 
   headlineTextSize = window.innerHeight / 14 < 40 ? 40 : window.innerHeight / 14;
   buttonTextSize = window.innerHeight / 27 < 20 ? 20 : window.innerHeight / 27;
   textTextSize = window.innerHeight / 33.75 < 15.5 ? 15.5 : window.innerHeight / 33.75;
 
   // Canvas
-  rescaleDimensionFactor = windowWidth / videoWidth;
   videoWidth = window.innerWidth;
-  videoHeight = window.innerHeight; //videoHeight * rescaleDimensionFactor;
+  videoHeight = window.innerHeight;;
+
+  // Info-Text in Zeilen einteilen
+  let textLines = [[]];
+  let lineIndex = 0;
+
+  textFont(fontHeader);
+  textSize(buttonTextSize);
+  leftEdge = videoWidth / 5 * 2 > 97 + textTextSize*2 + textWidth("UBERAETHERFON") + textTextSize/2*3 ? videoWidth / 5 * 3 : videoWidth - (97 + textTextSize*2 + textWidth("UBERAETHERFON") + textTextSize*2);
+  let lineLen = leftEdge - window.innerWidth / 9;
+
+  textFont('freight-neo-pro');
+  textSize(textTextSize);
+  for (let wordIndex in infoTextWords){
+
+    if (textWidth(textLines[lineIndex]) < lineLen) {
+
+      textLines[lineIndex].push(infoTextWords[wordIndex]);
+
+      if (infoTextWords[wordIndex] == "\n") {
+        textLines.push([""]);
+        lineIndex++
+      }
+
+      if (textWidth(textLines[lineIndex]) > lineLen) {
+                
+        textLines[lineIndex].pop();
+        textLines.push([infoTextWords[wordIndex]]);
+        lineIndex++
+      }
+    }
+  }
+  lines = [[]];
+  for (line in textLines) {
+    let string = "";
+    for (word in textLines[line]) {
+      string += textLines[line][word]
+    }
+    lines[line] = string;
+  }
+
+  // Impressums-Text in Zeilen einteilen
+  textLines = [[]];
+  lineIndex = 0;
+  for (let wordIndex in imprintTextWords){
+
+    if (textWidth(textLines[lineIndex]) < lineLen) {
+
+      textLines[lineIndex].push(imprintTextWords[wordIndex]);
+
+      if (imprintTextWords[wordIndex] == "\n") {
+        textLines.push([""]);
+        lineIndex++
+      }
+
+      if (textWidth(textLines[lineIndex]) > lineLen) {
+                
+        textLines[lineIndex].pop();
+        textLines.push([imprintTextWords[wordIndex]]);
+        lineIndex++
+      }
+    }
+  }
+  imprintLines = [[]];
+  for (line in textLines) {
+    let string = "";
+    for (word in textLines[line]) {
+      string += textLines[line][word]
+    }
+    imprintLines[line] = string;
+  }
 }
 
 function preload() {
   // Logo laden
   logo = loadImage('assets/logo/weiss_Aetherfon_Logo_RZ_klein.png');
-  logoBig = loadImage('assets/logo/weiss_Aetherfon_Logo_RZ.png');
+  // logoBig = loadImage('assets/logo/weiss_Aetherfon_Logo_RZ.png');
+  logoBig = logo;
   
   // Images laden
   imgMouse = loadImage('assets/images/mouse.jpg');
@@ -185,7 +302,7 @@ function preload() {
 
   // Font laden
   fontHeader = loadFont('assets/fonts/BHVSerif-Display.otf');
-
+  
   // Handvisuals laden
   imgR = loadImage('assets/icons/R2.png');
   imgL = loadImage('assets/icons/L2.png');
@@ -201,15 +318,14 @@ function preload() {
 }
 function setup() {
   
-  defineSizes();
-
   background(0);
 
-  createCanvas(videoWidth, videoHeight);
+  createCanvas(window.innerWidth, window.innerHeight);
   
   // Intro-Video laden
   introVideo = preloadIntroVideo;
   introVideo.hide()
+
 
   ranges = {
     x: {
@@ -251,10 +367,12 @@ function setup() {
       height: videoHeight / 8 * 5,
     }
   };
+
+  defineSizes();
 }
 function draw() {
 
-  defineSizes();
+  if (videoWidth != window.innerWidth || videoHeight != window.innerHeight) defineSizes();
   resizeCanvas(videoWidth, videoHeight);
 
   translate(videoWidth, 0)
@@ -268,7 +386,6 @@ function draw() {
 
   switch (status) {
     case 'start':
-      // infoPage();
       startPage();
       break;
     case 'startOut':
@@ -301,8 +418,20 @@ function draw() {
     case 'menuOut':
       menuOut();
       break;
+    case 'menuToThemeSel':
+      menuToThemeSel();
+      break;
     case 'infoPage':
       infoPage();
+      break;
+    case 'infoToGame':
+      infoToGame();
+      break;
+    case 'infoToThemeSel':
+      infoToThemeSel();
+      break;
+    case 'imprint':
+      imprint();
       break;
   }
 
@@ -314,16 +443,59 @@ function draw() {
       status = 'menuOut';
     }
   }
+
+  if (mouseClickable) {
+    noCursor();
+    tint(255);
+    image(imgR, mouseX-videoWidth-10, mouseY-10, 36, 50);
+  } //else cursor();
 }
 
 // Pages
 function startPage() {
 
+  cursor();
+
+  // Hintergrund-Animation
+  fakeVisualsNoisy(fakeNoiseCounter, fakeNoiseColor, fakeNoisePos);
+  fakeNoiseCounter[0] += Date.now() - startTimeJS[0]
+  fakeNoiseCounter[1] += Date.now() - startTimeJS[1]
+  fakeNoiseCounter[2] += Date.now() - startTimeJS[2]
+  if (fakeNoiseCounter[0] > 20000) {
+    fakeNoiseCounter[0] = 0;
+    startTimeJS[0] = Date.now()
+  // }
+  // if (fakeNoiseCounter[1] > 20000) {
+    fakeNoiseCounter[1] = 0;
+    startTimeJS[1] = Date.now()
+    
+    fakeNoisePos[1] += fakeNoiseMovement[1];
+    if (fakeNoisePos[1] > 5000) fakeNoiseMovement[1] *= -1;
+    else if (fakeNoisePos[1] < 500) fakeNoiseMovement[1] *= -1;
+    
+    fakeNoiseColor[1] += fakeNoiseColorchange[1];
+    if (fakeNoiseColor[1] > 10) fakeNoiseColorchange[1] *= -1;
+    else if (fakeNoiseColor[1] < 1) fakeNoiseColorchange[1] *= -1;
+  }
+  if (fakeNoiseCounter[2] > 5000) {
+    fakeNoiseCounter[2] = 0;
+    startTimeJS[2] = Date.now()
+    
+    fakeNoisePos[2] += fakeNoiseMovement[2];
+    if (fakeNoisePos[2] > 5000) fakeNoiseMovement[2] *= -1;
+    else if (fakeNoisePos[2] < 500) fakeNoiseMovement[2] *= -1;
+    
+    fakeNoiseColor[2] += fakeNoiseColorchange[2];
+    if (fakeNoiseColor[2] > 10) fakeNoiseColorchange[2] *= -1;
+    else if (fakeNoiseColor[2] < 1) fakeNoiseColorchange[2] *= -1;
+  }
+
   // Logo
   tint(255)
   image(logo, 
     -videoWidth/2 - logoBigWidth/2, 
-    videoHeight / 3 * 1 - logoBigHeight + headlineTextSize, 
+    // videoHeight / 3 * 1 - logoBigHeight + headlineTextSize, 
+    videoHeight / 2 - logoBigHeight / 4 * 3, 
     logoBigWidth, logoBigHeight);
 
   // Hinweis-Text
@@ -336,6 +508,8 @@ function startPage() {
 }
 function startOut() {
 
+  cursor();
+
   // Fade Out
   if (fadeTransparency > 0) {
     fadeTransparency -= deltaTimeJS * 0.5;
@@ -344,7 +518,8 @@ function startOut() {
     tint(255, fadeTransparency)
     image(logo, 
       -videoWidth/2 - logoBigWidth/2, 
-      videoHeight / 3 * 1 - logoBigHeight + headlineTextSize, 
+      // videoHeight / 3 * 1 - logoBigHeight + headlineTextSize, 
+      videoHeight / 2 - logoBigHeight / 4 * 3, 
       logoBigWidth, logoBigHeight);
 
     // Hinweis-Text
@@ -362,16 +537,15 @@ function startOut() {
 }
 function introPage() {
   
+  cursor();
+
   // Fade In
   if (fadeTransparency < 255) fadeTransparency += deltaTimeJS * 0.5;
   else fadeTransparency = 255;
 
-  // Logo
-  tint(255, fadeTransparency)
-  image(logo, -videoWidth+79, 85, logoWidth, logoHeight);
-
   // Intro-Video
-  image(introVideo, -videoWidth, 200, videoWidth, videoWidth * 0.5625);
+  image(introVideo, -videoWidth, videoHeight/2 - videoWidth * 0.5625 / 2, videoWidth, videoWidth * 0.5625);
+
   // if (introVideo.time() < introVideo.duration()) {
   if (introVideo.time() < 2) {
     introVideo.play();
@@ -385,8 +559,14 @@ function introPage() {
       timeDelayJS = 0;
     }
   }
+
+  // Logo
+  tint(255, fadeTransparency)
+  // image(logo, -videoWidth+79, 85, logoWidth, logoHeight);
 }
 function themeSelectionPage() {
+
+  cursor();
 
   // Fade In
   if (fadeTransparency < 255) fadeTransparency += deltaTimeJS * 0.5;
@@ -405,16 +585,20 @@ function themeSelectionPage() {
   text(string, -videoWidth / 2, videoHeight / 3 * 1 + headlineTextSize);
 
   // Auswahl
+  string = "SPHÄRISCH"
   textFont('freight-neo-pro');
   textSize(buttonTextSize);
-  string = "SPHÄRISCH"
-  text(string, - videoWidth / 2 + buttonTextSize*10, videoHeight / 3 * 2 - buttonTextSize);
+  fill(255, fadeTransparency);
+  text(string, - videoWidth / 2 - buttonTextSize*10, videoHeight / 3 * 2 - buttonTextSize);
   string = "EXPERIMENTELL"
+  fill(255, map(fadeTransparency, 0, 255, 0, 115));
   text(string, - videoWidth / 2, videoHeight / 3 * 2 - buttonTextSize);
   string = "MEDITATIV"
-  text(string, - videoWidth / 2 - buttonTextSize*10, videoHeight / 3 * 2 - buttonTextSize);
+  text(string, - videoWidth / 2 + buttonTextSize*10, videoHeight / 3 * 2 - buttonTextSize);
 }
 function themeSelectionOut() {
+
+  noCursor();
 
   // Logo
   image(logo, -videoWidth+79, 85, logoWidth, logoHeight);
@@ -432,14 +616,16 @@ function themeSelectionOut() {
     text(string, -videoWidth / 2, videoHeight / 3 * 1 + headlineTextSize);
 
     // Auswahl
+    string = "SPHÄRISCH"
     textFont('freight-neo-pro');
     textSize(buttonTextSize);
-    string = "SPHÄRISCH"
-    text(string, - videoWidth / 2 + buttonTextSize*10, videoHeight / 3 * 2 - buttonTextSize);
+    fill(255, fadeTransparency);
+    text(string, - videoWidth / 2 - buttonTextSize*10, videoHeight / 3 * 2 - buttonTextSize);
     string = "EXPERIMENTELL"
+    fill(255, map(fadeTransparency, 0, 255, 0, 115));
     text(string, - videoWidth / 2, videoHeight / 3 * 2 - buttonTextSize);
     string = "MEDITATIV"
-    text(string, - videoWidth / 2 - buttonTextSize*10, videoHeight / 3 * 2 - buttonTextSize);
+    text(string, - videoWidth / 2 + buttonTextSize*10, videoHeight / 3 * 2 - buttonTextSize);
     }
   else {
     fadeTransparency = 0;
@@ -447,6 +633,8 @@ function themeSelectionOut() {
   }
 }
 function loadingPage() {
+
+  noCursor();
 
   // Fade In
   if (fadeTransparency < 255) fadeTransparency += deltaTimeJS * 0.5;
@@ -468,6 +656,8 @@ function loadingPage() {
   text(string, -videoWidth / 2, videoHeight / 3 * 1 + headlineTextSize);
 }
 function loadingOut() {
+
+  noCursor();
 
   // Fade Out
   if (fadeTransparency > 0) {
@@ -553,16 +743,17 @@ function gamePage() {
     }
 
     // Visualizations
-    visualizationBody();
-    // visualsSoundsAtHandPos(); 
     visualsNoisy(visualsPositions, tempo);
-
+    visualizationBody();
   } 
   // Wenn Zeit vorbei ist Variablen zurücksetzen uns Status ändern
   else if (currentTime > endTime + timeDelay) {
+    console.log(visualsPositions);
     visualsPositions = [[], [], [], []];
     loopTimes[0] = 0;
     currentTime = 0;
+    sphereIsPlaying = false;
+    sphere.pause()
     status = 'gameEnded';
   }
 }
@@ -577,6 +768,10 @@ function gameEndedPage() {
   // Logo
   tint(255, fadeTransparency);
   image(logo, -videoWidth+79, 85, logoWidth, logoHeight);
+
+  // Hintergrundbild
+  tint(255, fadeTransparency);
+  image(imgParty, -videoHeight * 0.577, 0, videoHeight * 0.66, videoHeight);
     
   // Headline
   let string = "GEIL GEMACHT!";
@@ -598,8 +793,17 @@ function gameEndedPage() {
   text(string, - videoWidth / 2 - buttonTextSize*5.66, videoHeight / 3 * 2 - buttonTextSize);
   string = "ÜBER AETHERFON";
   text(string, - videoWidth / 2 + buttonTextSize*4.33, videoHeight / 3 * 2 - buttonTextSize);
+
+  // Impressum & Datenschutz
+  string = "Datenschutz - Impressum";
+  textFont('freight-neo-pro');
+  textAlign(LEFT);
+  textSize(textTextSize / 2);
+  text(string, -videoWidth + 79, videoHeight -75);
 }
 function gameEndedOut() {
+
+  cursor();
 
   // Logo
   image(logo, -videoWidth+79, 85, logoWidth, logoHeight);
@@ -608,12 +812,16 @@ function gameEndedOut() {
   if (fadeTransparency > 0) {
     fadeTransparency -= deltaTimeJS * 0.5;
 
+    // Hintergrundbild
+    tint(255, fadeTransparency);
+    image(imgParty, -videoHeight * 0.66, 0, videoHeight * 0.66, videoHeight);
+
     // Headline
     let string = "GEIL GEMACHT!";
     textFont(fontHeader);
     textSize(headlineTextSize);
     textAlign(CENTER);
-    fill(255, fadeTransparency);
+    fill(255, fadeTransparency, 0, 255, 0, 51);
     text(string, -videoWidth / 2, videoHeight / 3 * 1 + headlineTextSize);
 
     // Text
@@ -628,12 +836,18 @@ function gameEndedOut() {
     text(string, - videoWidth / 2 - buttonTextSize*5.66, videoHeight / 3 * 2 - buttonTextSize);
     string = "ÜBER AETHERFON";
     text(string, - videoWidth / 2 + buttonTextSize*4.33, videoHeight / 3 * 2 - buttonTextSize);
+
+    // Impressum & Datenschutz
+    string = "Datenschutz - Impressum";
+    textFont('freight-neo-pro');
+    textSize(textTextSize / 2);
+    text(string, -videoWidth + 79, videoHeight -75);
   }
   else fadeTransparency = 0;
-
-  
 }
 function menu(){
+
+  cursor();
 
   visualsPaused();
 
@@ -645,27 +859,32 @@ function menu(){
   tint(255, fadeTransparency);
   image(logo, -videoWidth+79, 85, logoWidth, logoHeight);
 
-  // Hinweis-Text
+  // Buttons
   let string = "FORTSETZEN";
-  textFont('freight-neo-pro');
+  textFont(fontHeader);
   textSize(buttonTextSize);
   textAlign(LEFT);
-  fill(255, fadeTransparency);
-  text(string, -videoWidth + 79, videoHeight / 7 * 3);
-
+  fill(255, map(fadeTransparency, 0, 255, 0, 115));
+  rect(-videoWidth + 79, videoHeight / 7 * 3 - textTextSize / 2, textTextSize/2*3, 1);
+  text(string, -videoWidth + 97 + textTextSize*2, videoHeight / 7 * 3);
+  
   string = "NEU STARTEN";
-  text(string, -videoWidth + 79, videoHeight / 7 * 4);
-
+  rect(-videoWidth + 79, videoHeight / 7 * 4 - textTextSize / 2, textTextSize/2*3, 1);
+  text(string, -videoWidth + 97 + textTextSize*2, videoHeight / 7 * 4);
+  
   string = "ÜBER AETHERFON";
-  text(string, -videoWidth + 79, videoHeight / 7 * 5);
-
+  rect(-videoWidth + 79, videoHeight / 7 * 5 - textTextSize/ 2, textTextSize/2*3, 1);
+  text(string, -videoWidth + 97 + textTextSize*2, videoHeight / 7 * 5);
+  
   string = "Datenschutz - Impressum";
+  textFont('freight-neo-pro');
   textSize(textTextSize/2);
   fill(255);
   text(string, -videoWidth + 79, videoHeight -75);
-  
 }
 function menuOut(){
+
+  noCursor();
 
   visualsPaused();
 
@@ -679,20 +898,27 @@ function menuOut(){
 
     // Hinweis-Text
     let string = "FORTSETZEN";
-    textFont('freight-neo-pro');
+    textFont(fontHeader);
     textSize(buttonTextSize);
     textAlign(LEFT);
     fill(255, fadeTransparency);
-    text(string, -videoWidth + 79, videoHeight / 7 * 3);
-
+    rect(-videoWidth + 79 + textTextSize/2*3, videoHeight / 7 * 3 - textTextSize/5*6, 1, textTextSize/2*3);
+    text(string, -videoWidth + 97 + textTextSize*2, videoHeight / 7 * 3);
+    
     string = "NEU STARTEN";
-    text(string, -videoWidth + 79, videoHeight / 7 * 4);
-
+    fill(255, map(fadeTransparency, 0, 255, 0, 115));
+    rect(-videoWidth + 79, videoHeight / 7 * 4 - textTextSize / 2, textTextSize/2*3, 1);
+    text(string, -videoWidth + 97 + textTextSize*2, videoHeight / 7 * 4);
+    
     string = "ÜBER AETHERFON";
-    text(string, -videoWidth + 79, videoHeight / 7 * 5);
-
-    textSize(textTextSize);
+    fill(255, map(fadeTransparency, 0, 255, 0, 115));
+    rect(-videoWidth + 79, videoHeight / 7 * 5 - textTextSize/ 2, textTextSize/2*3, 1);
+    text(string, -videoWidth + 97 + textTextSize*2, videoHeight / 7 * 5);
+    
     string = "Datenschutz - Impressum";
+    textFont('freight-neo-pro');
+    textSize(textTextSize/2);
+    fill(255, fadeTransparency);
     text(string, -videoWidth + 79, videoHeight -75);
   }
   else {
@@ -700,7 +926,228 @@ function menuOut(){
     status = 'game';
   }
 }
+function menuToThemeSel(){
+
+  cursor();
+
+  visualsPaused();
+
+  // Fade Out
+  if (fadeTransparency > 0) {
+    fadeTransparency -= deltaTimeJS * 0.25;
+
+    // Logo
+    tint(255);
+    image(logo, -videoWidth+79, 85, logoWidth, logoHeight);
+
+    // Hinweis-Text
+    let string = "FORTSETZEN";
+    textFont(fontHeader);
+    textSize(buttonTextSize);
+    textAlign(LEFT);
+    fill(255, map(fadeTransparency, 0, 255, 0, 115));
+    rect(-videoWidth + 79, videoHeight / 7 * 3 - textTextSize / 2, textTextSize/2*3, 1);
+    text(string, -videoWidth + 97 + textTextSize*2, videoHeight / 7 * 3);
+    
+    string = "NEU STARTEN";
+    fill(255, fadeTransparency);
+    rect(-videoWidth + 79 + textTextSize/2*3, videoHeight / 7 * 4 - textTextSize/5*6, 1, textTextSize/2*3);
+    text(string, -videoWidth + 97 + textTextSize*2, videoHeight / 7 * 4);
+    
+    string = "ÜBER AETHERFON";
+    fill(255, map(fadeTransparency, 0, 255, 0, 115));
+    rect(-videoWidth + 79, videoHeight / 7 * 5 - textTextSize/ 2, textTextSize/2*3, 1);
+    text(string, -videoWidth + 97 + textTextSize*2, videoHeight / 7 * 5);
+    
+    string = "Datenschutz - Impressum";
+    textFont('freight-neo-pro');
+    textSize(textTextSize/2);
+    fill(255, fadeTransparency);
+    text(string, -videoWidth + 79, videoHeight -75);
+  }
+  else {
+    // Logo
+    tint(255);
+    image(logo, -videoWidth+79, 85, logoWidth, logoHeight);
+
+    fadeTransparency = 0;
+    status = 'themeSelection';
+  }
+}
 function infoPage(){
+
+  cursor();
+
+  // Logo
+  tint(255);
+  image(logo, -videoWidth+79, 85, logoWidth, logoHeight);
+
+  // Hintergrundbild
+  tint(255);
+  image(imgTheramin, -videoHeight * 0.577, 0, videoHeight * 0.577, videoHeight);
+
+  // Buttons
+  let string = "FORTSETZEN";
+  textFont(fontHeader);
+  textSize(buttonTextSize);
+  textAlign(LEFT);
+  fill(255, 115);
+  rect(-videoWidth + 79, videoHeight / 7 * 3 - textTextSize / 2, textTextSize/2*3, 1);
+  text(string, -videoWidth + 97 + textTextSize*2, videoHeight / 7 * 3);
+
+  string = "NEU STARTEN";
+  fill(255, 115);
+  rect(-videoWidth + 79, videoHeight / 7 * 4 - textTextSize / 2, textTextSize/2*3, 1);
+  text(string, -videoWidth + 97 + textTextSize*2, videoHeight / 7 * 4);
+
+  string = "ÜBER AETHERFON";
+  fill(255);
+  rect(-videoWidth + 79 + textTextSize/2*3, videoHeight / 7 * 5 - textTextSize/5*6, 1, textTextSize/2*3);
+  text(string, -videoWidth + 97 + textTextSize*2, videoHeight / 7 * 5);
+
+  string = "Datenschutz - Impressum";
+  textFont('freight-neo-pro');
+  textSize(textTextSize / 2);
+  fill(255);
+  text(string, -videoWidth + 79, videoHeight -75);
+
+  // Info-Text
+  textFont('freight-neo-pro');
+  textSize(textTextSize);
+  fill(255);
+  startLine = wheel;  
+  for (let x = 0; x < 15; x ++) {
+    text(lines[x + startLine], -leftEdge, videoHeight*0.22+textTextSize  + textTextSize/3*4*x);
+  }
+
+  // Textlaufleiste
+  noStroke();
+  let textScrollY = ((videoHeight - (videoHeight * 0.68)) / (lines.length - 14)) * startLine;
+  rect(-videoWidth / 9, videoHeight * 0.22 + textScrollY, 5, videoHeight * 0.3, 2.5);
+}
+function infoToGame(){
+
+  noCursor();
+
+  // Fade Out
+  if (fadeTransparency > 0) {
+    fadeTransparency -= deltaTimeJS * 0.25;
+  
+    // Logo
+    tint(255, fadeTransparency);
+    image(logo, -videoWidth+79, 85, logoWidth, logoHeight);
+
+    // Hintergrundbild
+    tint(255, fadeTransparency);
+    image(imgTheramin, -videoHeight * 0.577, 0, videoHeight * 0.577, videoHeight);
+
+    // Buttons
+    let string = "FORTSETZEN";
+    textFont(fontHeader);
+    textSize(buttonTextSize);
+    textAlign(LEFT);
+    fill(255, fadeTransparency);
+    rect(-videoWidth + 79, videoHeight / 7 * 3 - textTextSize / 2, textTextSize/2*3, 1);
+    text(string, -videoWidth + 97 + textTextSize*2, videoHeight / 7 * 3);
+
+    string = "NEU STARTEN";
+    fill(255, map(fadeTransparency, 0, 255, 0, 115));
+    rect(-videoWidth + 79, videoHeight / 7 * 4 - textTextSize / 2, textTextSize/2*3, 1);
+    text(string, -videoWidth + 97 + textTextSize*2, videoHeight / 7 * 4);
+
+    string = "ÜBER AETHERFON";
+    fill(map(fadeTransparency, 0, 255, 0, 115));
+    rect(-videoWidth + 79 + textTextSize/2*3, videoHeight / 7 * 5 - textTextSize/5*6, 1, textTextSize/2*3);
+    text(string, -videoWidth + 97 + textTextSize*2, videoHeight / 7 * 5);
+
+    string = "Datenschutz - Impressum";
+    textFont('freight-neo-pro');
+    textSize(textTextSize / 2);
+    fill(255, fadeTransparency);
+    text(string, -videoWidth + 79, videoHeight -75);
+
+    // Info-Text  
+    textFont('freight-neo-pro');
+    textSize(textTextSize);
+    fill(255, fadeTransparency);
+    startLine = wheel;  
+    for (let x = 0; x < 15; x ++) {
+      text(lines[x + startLine], -videoWidth / 5 * 3, videoHeight*0.22+textTextSize  + textTextSize/3*4*x);
+    }
+    // Textlaufleiste
+    noStroke();
+    rect(-videoWidth / 9, videoHeight * 0.22 + startLine * textTextSize/5*3, 5, videoHeight * 0.3, 2.5);
+  }
+  else {
+    fadeTransparency = 0;
+    status = 'game';
+  }
+}
+function infoToThemeSel(){
+
+  cursor();
+
+  // Fade Out
+  if (fadeTransparency > 0) {
+    fadeTransparency -= deltaTimeJS * 0.25;
+  
+    // Logo
+    tint(255);
+    image(logo, -videoWidth+79, 85, logoWidth, logoHeight);
+
+    // Hintergrundbild
+    tint(255, fadeTransparency);
+    image(imgTheramin, -videoHeight * 0.577, 0, videoHeight * 0.577, videoHeight);
+
+    // Buttons
+    let string = "FORTSETZEN";
+    textFont(fontHeader);
+    textSize(buttonTextSize);
+    textAlign(LEFT);
+    fill(255, map(fadeTransparency, 0, 255, 0, 115));
+    rect(-videoWidth + 79, videoHeight / 7 * 3 - textTextSize / 2, textTextSize/2*3, 1);
+    text(string, -videoWidth + 97 + textTextSize*2, videoHeight / 7 * 3);
+    
+    string = "NEU STARTEN";
+    fill(255, fadeTransparency);
+    rect(-videoWidth + 79, videoHeight / 7 * 4 - textTextSize / 2, textTextSize/2*3, 1);
+    text(string, -videoWidth + 97 + textTextSize*2, videoHeight / 7 * 4);
+
+    string = "ÜBER AETHERFON";
+    fill(map(fadeTransparency, 0, 255, 0, 115));
+    rect(-videoWidth + 79 + textTextSize/2*3, videoHeight / 7 * 5 - textTextSize/5*6, 1, textTextSize/2*3);
+    text(string, -videoWidth + 97 + textTextSize*2, videoHeight / 7 * 5);
+
+    string = "Datenschutz - Impressum";
+    textFont('freight-neo-pro');
+    textSize(textTextSize / 2);
+    fill(255, fadeTransparency);
+    text(string, -videoWidth + 79, videoHeight -75);
+
+    // Info-Text  
+    textFont('freight-neo-pro');
+    textSize(textTextSize);
+    fill(255, fadeTransparency);
+    startLine = wheel;  
+    for (let x = 0; x < 15; x ++) {
+      text(lines[x + startLine], -videoWidth / 5 * 3, videoHeight*0.22+textTextSize  + textTextSize/3*4*x);
+    }
+    // Textlaufleiste
+    noStroke();
+    rect(-videoWidth / 9, videoHeight * 0.22 + startLine * textTextSize/5*3, 5, videoHeight * 0.3, 2.5);
+  }
+  else {
+    // Logo
+    tint(255);
+    image(logo, -videoWidth+79, 85, logoWidth, logoHeight);
+  
+    fadeTransparency = 0;
+    status = 'themeSelection';
+  }
+}
+function imprint(){
+
+  cursor();
 
   // Logo
   tint(255);
@@ -708,175 +1155,381 @@ function infoPage(){
 
   // Hintergrundbild
   tint(255, 51);
-  image(imgTheramin, -videoHeight * 0.8, 0, videoHeight * 0.8, videoHeight);
+  image(imgTheramin, -videoHeight * 0.577, 0, videoHeight * 0.577, videoHeight);
 
   // Buttons
   let string = "FORTSETZEN";
-  textFont('freight-neo-pro');
+  textFont(fontHeader);
   textSize(buttonTextSize);
   textAlign(LEFT);
-  fill(255, 155);
-  rect(-videoWidth + 79, videoHeight / 7 * 3 - textTextSize / 2, textTextSize/2*3, 3);
-  text(string, -videoWidth + 167, videoHeight / 7 * 3);
+  fill(255, 115);
+  rect(-videoWidth + 79, videoHeight / 7 * 3 - textTextSize / 2, textTextSize/2*3, 1);
+  text(string, -videoWidth + 97 + textTextSize*2, videoHeight / 7 * 3);
 
   string = "NEU STARTEN";
   fill(255, 115);
-  rect(-videoWidth + 79, videoHeight / 7 * 4 - textTextSize / 2, textTextSize/2*3, 3);
-  text(string, -videoWidth + 167, videoHeight / 7 * 4);
+  rect(-videoWidth + 79, videoHeight / 7 * 4 - textTextSize / 2, textTextSize/2*3, 1);
+  text(string, -videoWidth + 97 + textTextSize*2, videoHeight / 7 * 4);
 
   string = "ÜBER AETHERFON";
-  fill(255);
-  rect(-videoWidth + 79 + textTextSize/2*3, videoHeight / 7 * 5 - textTextSize/5*6, 3, textTextSize/2*3);
-  text(string, -videoWidth + 167, videoHeight / 7 * 5);
+  fill(255, 115);
+  rect(-videoWidth + 79, videoHeight / 7 * 5 - textTextSize / 2, textTextSize/2*3, 1);
+  text(string, -videoWidth + 97 + textTextSize*2, videoHeight / 7 * 5);
 
   string = "Datenschutz - Impressum";
+  textFont('freight-neo-pro');
   textSize(textTextSize / 2);
   fill(255);
   text(string, -videoWidth + 79, videoHeight -75);
 
-  // Text  
-  // string = "Erzeuge unbekannte sphärische Klänge und tauche ein in eine neue Form der experimentellen Musikerzeugung – alles gesteuert durch die bloße Bewegung deiner Hände. Aetherfon (abgeleitet von dem elektronischen Musikinstrument Theremin) ist ein auf künstlicher Intelligenz basierendes Experiment, entstanden im Rahmen des multidisziplinären Kurses AIXDESIGN an der HAW Hamburg. Ziel des Experiments ist es die User:innen spielerisch an die Themen Musik und Technik – speziell künstliche Intelligenz – zu führen und Ihnen Raum zur künstlerischen Entfaltung in Zeiten von Corona zu geben. Mit Hilfe von PoseNet, einem Machine Learning Model, das Schätzung der menschlichen Körperhaltung in Echtzeit ermöglicht, können die Handbewegungen der User:innen über die Webcam verfolgt werden. Durch diese Motion Capture sind sie in der Lage die Geschwindigkeit, Lautstärke, Audioqualität und Frequenz mehrerer Sounds, durch die bloße Bewegung ihrer Hände einzeln zu verändern und so Musik zu erzeugen. Zeitgleich wird die erschaffene Musik mittels p5.js, einer JavaScript-Bibliothek, grafisch visualisiert und animiert und gibt den User:innen zusätzlich ein visuelles Feedback zu ihrem musikalischen Spiel. Das Team hinter Aetherfon besteht aus den Studierenden Tobias Braun (B.A. Media Systems), Charleen König (B.A. Kommunikationsdesign), Hannah Pohlmann (M.A. Kommunikationsdesign) und Moniek Wiese (M.A. Kommunikationsdesign).";
+  // Info-Text
+  textFont('freight-neo-pro');
   textSize(textTextSize);
   fill(255);
-
-  // startLine = startLine + wheel <= 0 ? 0 : startLine + wheel;
   startLine = wheel;  
-  for (x = 0; x < 15; x ++) {
-    text(lines[x + startLine], -videoWidth / 5 * 3, videoHeight * 0.22 + textTextSize/3*4 * x)
+  for (let x = 0; x < 15; x ++) {
+    text(imprintLines[x + startLine], -leftEdge, videoHeight*0.22+textTextSize  + textTextSize/3*4*x);
   }
-  rect(-videoWidth / 9, videoHeight * 0.22 + startLine * textTextSize/4*3, 5, videoHeight * 0.3, 2.5)
+
+  // Textlaufleiste
+  noStroke();
+  let textScrollY = ((videoHeight - (videoHeight * 0.68)) / (imprintLines.length - 14)) * startLine;
+  rect(-videoWidth / 9, videoHeight * 0.22 + textScrollY, 5, videoHeight * 0.3, 2.5);
 }
 
 // Page Interaction Mouse
 function mousePressed() {  
   switch (status) {
     case 'start':
-      if (mouseY > videoHeight / 3 * 2 - buttonTextSize / 2  - buttonTextSize &&
-        mouseY < videoHeight / 3 * 2 + buttonTextSize / 2 - buttonTextSize
+      if (mouseY > videoHeight / 3 * 2 - buttonTextSize / 4 * 7 &&
+        mouseY < videoHeight / 3 * 2 - buttonTextSize &&
+        mouseX > videoWidth / 2 - textWidth("ENTER") / 2 && 
+        mouseX < videoWidth / 2 + textWidth("ENTER") / 2
       ) {
-        if (mouseX > videoWidth / 2 - buttonTextSize * 2 && 
-          mouseX < videoWidth / 2 + buttonTextSize * 2
-        ) {
-            status = 'startOut';
-        }
+        mouseClickable = false;
+        visualsPositions = [[], [], [], []];
+        status = 'startOut';
       }
       break;
     case 'themeSelection':
       visualsPositions = [[], [], [], []];  
       if (mouseY > videoHeight / 3 * 2 - buttonTextSize * 2 && 
         mouseY < videoHeight / 3 * 2 - buttonTextSize
-      ) {
-        if (mouseX > videoWidth / 2 + buttonTextSize*10 - buttonTextSize * 3 && 
-          mouseX < videoWidth / 2 + buttonTextSize*10 + buttonTextSize * 3
-        ){
-          fadeTransparency = 255;
-          status = 'themeSelectionOut';
-          createAudioContext('theme1');
-        } 
-        else if (mouseX > videoWidth / 2 - buttonTextSize * 4 && 
-          mouseX < videoWidth / 2 + buttonTextSize * 4
-        ){
-          fadeTransparency = 255;
-          status = 'themeSelectionOut';
-          createAudioContext('theme2');
-        } 
-        else if (mouseX > videoWidth / 2 - buttonTextSize*10 - buttonTextSize * 3 && 
+      ){
+        if (mouseX > videoWidth / 2 - buttonTextSize*10 - buttonTextSize * 3 && 
           mouseX < videoWidth / 2 - buttonTextSize*10 + buttonTextSize * 3
         ){
+          noCursor();
+          mouseClickable = false;
           fadeTransparency = 255;
           status = 'themeSelectionOut';
-          createAudioContext('theme3');
-        }
+          visualsPositions = [[], [], [], []];
+          loopTimes = [0, 0, 0, 0];
+          createAudioContext('theme1');
+        } 
       }
       break;
     case 'gameEnded':
       if (mouseY > videoHeight / 3 * 2 - buttonTextSize * 2 && 
         mouseY < videoHeight / 3 * 2 - buttonTextSize
       ) {
-        if (mouseX > videoWidth / 2 - buttonTextSize*5.66 - buttonTextSize * 2.5 && 
-          mouseX < videoWidth / 2 - buttonTextSize*5.66 + buttonTextSize * 2.5
+        textFont(fontHeader);
+        textSize(buttonTextSize);
+        if (mouseX > videoWidth / 2 - buttonTextSize*5.66 - textWidth("NOCHMAL") / 2 && 
+          mouseX < videoWidth / 2 - buttonTextSize*5.66 + textWidth("NOCHMAL") / 2
         ){
+          mouseClickable = false;
           visualsPositions = [[], [], [], []];
           status = 'themeSelection';
         } 
-        else if (mouseX > videoWidth / 2 + buttonTextSize*4.33 - buttonTextSize * 4 && 
-          mouseX < videoWidth / 2 + buttonTextSize*4.33 + buttonTextSize * 4
+        else if (mouseX > videoWidth / 2 + buttonTextSize*4.33 - textWidth("UBER AETHERFON") / 2 && 
+          mouseX < videoWidth / 2 + buttonTextSize*4.33 + textWidth("UBER AETHERFON") / 2
         ){
+          mouseClickable = false;
           status = 'infoPage';
         }
+      }
+      else if (mouseX > 79 && 
+        mouseX < 99 + textTextSize/2 + textWidth("Placehol") &&
+        mouseY > videoHeight -75 - textTextSize && 
+        mouseY < videoHeight -75 + textTextSize / 2 
+      ){
+        mouseClickable = false;
+        status = 'imprint';
       }
       break;
     case 'menu':
-      if (mouseX > 79
-        && mouseX < videoWidth / 3 * 1
-      ) {
-        if (mouseY > videoHeight / 7 * 3 - buttonTextSize / 2 && 
-          mouseY < videoHeight / 7 * 3 + buttonTextSize / 2
-        ){
-          noCursor();
-          fadeTransparency = 255;
-          status = 'menuOut';
-        } 
-        else if (mouseY > videoHeight / 7 * 4 - buttonTextSize / 2 && 
-          mouseY < videoHeight / 7 * 4 + buttonTextSize / 2
-        ){
-          fadeTransparency = 0;
-          status = 'themeSelection';
-        } 
-        else if (mouseY > videoHeight / 7 * 5 - buttonTextSize / 2 && 
-          mouseY < videoHeight / 7 * 5 + buttonTextSize / 2
-        ){
-          status = 'infoPage';
-        }
+      textFont(fontHeader);
+      textSize(buttonTextSize);
+      if (mouseX > 79 && 
+        mouseX < 99 + textTextSize*2 + textWidth("FORTSETZEN") &&
+        mouseY > videoHeight / 7 * 3 - buttonTextSize / 4 * 3 && 
+        mouseY < videoHeight / 7 * 3
+      ){
+        mouseClickable = false;
+        noCursor();
+        fadeTransparency = 255;
+        status = 'menuOut';
+      } 
+      else if (mouseX > 79 && 
+        mouseX < 99 + textTextSize*2 + textWidth("NEU STARTEN") &&
+        mouseY > videoHeight / 7 * 4 - buttonTextSize / 4 * 3 && 
+        mouseY < videoHeight / 7 * 4
+      ){
+        mouseClickable = false;
+        fadeTransparency = 255;
+        visualsPositions = [[], [], [], []];
+        status = 'menuToThemeSel';
+      } 
+      else if (mouseX > 79 && 
+        mouseX < 99 + textTextSize*2 + textWidth("ÜBER AETHERFON") &&
+        mouseY > videoHeight / 7 * 5 - buttonTextSize / 4 * 3 && 
+        mouseY < videoHeight / 7 * 5
+      ){
+        mouseClickable = false;
+        status = 'infoPage';
+      }
+      else if (mouseX > 79 && 
+        mouseX < 99 + textTextSize/2 + textWidth("Placehol") &&
+        mouseY > videoHeight -75 - textTextSize && 
+        mouseY < videoHeight -75 + textTextSize / 2 
+      ){
+        mouseClickable = false;
+        status = 'imprint';
       }
       break;
     case 'infoPage':
-      if (mouseX > 79
-        && mouseX < videoWidth / 3 * 1
-      ) {
-        if (mouseY > videoHeight / 7 * 3 - buttonTextSize / 2 && 
-          mouseY < videoHeight / 7 * 3 + buttonTextSize / 2
-        ){
-          status = 'game';
-        } 
-        else if (mouseY > videoHeight / 7 * 4 - buttonTextSize / 2 && 
-          mouseY < videoHeight / 7 * 4 + buttonTextSize / 2
-        ){
-          visualsPositions = [[], [], [], []];
-          status = 'themeSelection';
-        } 
-        else if (mouseY > videoHeight / 7 * 5 - buttonTextSize / 2 && 
-          mouseY < videoHeight / 7 * 5 + buttonTextSize / 2
-        ){
-          status = 'infoPage';
-        }
+      textFont(fontHeader);
+      textSize(buttonTextSize);
+      if (mouseX > 79 && 
+        mouseX < 99 + textTextSize*2 + textWidth("FORTSETZEN") &&
+        mouseY > videoHeight / 7 * 3 - buttonTextSize / 4 * 3 && 
+        mouseY < videoHeight / 7 * 3
+      ){
+        mouseClickable = false;
+        noCursor();
+        status = 'infoToGame';
+      } 
+      else if (mouseX > 79 && 
+        mouseX < 99 + textTextSize*2 + textWidth("NEU STARTEN") &&
+        mouseY > videoHeight / 7 * 4 - buttonTextSize / 4 * 3 && 
+        mouseY < videoHeight / 7 * 4
+      ){
+        mouseClickable = false;
+        visualsPositions = [[], [], [], []];
+        status = 'infoToThemeSel';
+      }
+      else if (mouseX > 79 && 
+        mouseX < 99 + textTextSize/2 + textWidth("Placehol") &&
+        mouseY > videoHeight -75 - textTextSize && 
+        mouseY < videoHeight -75 + textTextSize / 2 
+      ){
+        mouseClickable = false;
+        status = 'imprint';
+      }
+      break;
+    case 'imprint':
+      textFont(fontHeader);
+      textSize(buttonTextSize);
+      if (mouseX > 79 && 
+        mouseX < 99 + textTextSize*2 + textWidth("FORTSETZEN") &&
+        mouseY > videoHeight / 7 * 3 - buttonTextSize / 4 * 3 && 
+        mouseY < videoHeight / 7 * 3
+      ){
+        mouseClickable = false;
+        noCursor();
+        fadeTransparency = 255;
+        status = 'menuOut';
+      } 
+      else if (mouseX > 79 && 
+        mouseX < 99 + textTextSize*2 + textWidth("NEU STARTEN") &&
+        mouseY > videoHeight / 7 * 4 - buttonTextSize / 4 * 3 && 
+        mouseY < videoHeight / 7 * 4
+      ){
+        mouseClickable = false;
+        fadeTransparency = 255;
+        visualsPositions = [[], [], [], []];
+        status = 'menuToThemeSel';
+      } 
+      else if (mouseX > 79 && 
+        mouseX < 99 + textTextSize*2 + textWidth("ÜBER AETHERFON") &&
+        mouseY > videoHeight / 7 * 5 - buttonTextSize / 4 * 3 && 
+        mouseY < videoHeight / 7 * 5
+      ){
+        mouseClickable = false;
+        status = 'infoPage';
       }
       break;
   }
 }
 function mouseMoved() {
   switch (status) {
-
+    case 'start':
+      if (mouseY > videoHeight / 3 * 2 - buttonTextSize / 4 * 7 &&
+        mouseY < videoHeight / 3 * 2 - buttonTextSize &&
+        mouseX > videoWidth / 2 - textWidth("ENTER") / 2 && 
+        mouseX < videoWidth / 2 + textWidth("ENTER") / 2
+      ){
+        mouseClickable = true;
+      } else mouseClickable = false;
+      break;
+    case 'themeSelection':
+      visualsPositions = [[], [], [], []];  
+      if (mouseY > videoHeight / 3 * 2 - buttonTextSize * 2 && 
+        mouseY < videoHeight / 3 * 2 - buttonTextSize
+      ){
+        if (mouseX > videoWidth / 2 - buttonTextSize*10 - buttonTextSize * 3 && 
+          mouseX < videoWidth / 2 - buttonTextSize*10 + buttonTextSize * 3
+        ){
+          mouseClickable = true;
+        } else mouseClickable = false;
+      } else mouseClickable = false;
+      break;
     case 'game':
       if (timeDelayJS < 500) {
+        noCursor();
         timeDelayJS += deltaTimeJS;
       }
       else {
         timeDelayJS = 0;
         menuTimeout = 0;
         pauseTime = context.currentTime;
+        sphereIsPlaying = false;
+        sphere.pause()
         status = "menu";
       }
       break;
     case 'menu':
       cursor();
       menuTimeout = 0;
+
+      textFont(fontHeader);
+      textSize(buttonTextSize);
+      if (mouseX > 79 && 
+        mouseX < 99 + textTextSize*2 + textWidth("FORTSETZEN") &&
+        mouseY > videoHeight / 7 * 3 - buttonTextSize / 4 * 3 && 
+        mouseY < videoHeight / 7 * 3
+      ){
+        mouseClickable = true;
+      } 
+      else if (mouseX > 79 && 
+        mouseX < 99 + textTextSize*2 + textWidth("NEU STARTEN") &&
+        mouseY > videoHeight / 7 * 4 - buttonTextSize / 4 * 3 && 
+        mouseY < videoHeight / 7 * 4
+      ){
+        mouseClickable = true;
+      } 
+      else if (mouseX > 79 && 
+        mouseX < 99 + textTextSize*2 + textWidth("ÜBER AETHERFON") &&
+        mouseY > videoHeight / 7 * 5 - buttonTextSize / 4 * 3 && 
+        mouseY < videoHeight / 7 * 5
+      ){
+        mouseClickable = true;
+      } 
+      else if (mouseX > 79 && 
+        mouseX < 99 + textTextSize/2 + textWidth("Placehol") &&
+        mouseY > videoHeight -75 - textTextSize && 
+        mouseY < videoHeight -75 + textTextSize / 2 
+      ){
+        mouseClickable = true;
+      } 
+      else mouseClickable = false;
+      break;
+    case 'infoPage':
+      textFont(fontHeader);
+      textSize(buttonTextSize);
+      if (mouseX > 79 && 
+        mouseX < 99 + textTextSize*2 + textWidth("FORTSETZEN") &&
+        mouseY > videoHeight / 7 * 3 - buttonTextSize / 4 * 3 && 
+        mouseY < videoHeight / 7 * 3
+      ){
+        mouseClickable = true;
+      } 
+      else if (mouseX > 79 && 
+        mouseX < 99 + textTextSize*2 + textWidth("NEU STARTEN") &&
+        mouseY > videoHeight / 7 * 4 - buttonTextSize / 4 * 3 && 
+        mouseY < videoHeight / 7 * 4
+      ){
+        mouseClickable = true;
+      } 
+      else if (mouseX > 79 && 
+        mouseX < 99 + textTextSize/2 + textWidth("Placehol") &&
+        mouseY > videoHeight -75 - textTextSize && 
+        mouseY < videoHeight -75 + textTextSize / 2 
+      ){
+        mouseClickable = true;
+      } 
+      else mouseClickable = false;
+      break;
+    case 'gameEnded':
+      if (mouseY > videoHeight / 3 * 2 - buttonTextSize * 2 && 
+        mouseY < videoHeight / 3 * 2 - buttonTextSize
+      ) {
+        textFont(fontHeader);
+        textSize(buttonTextSize);
+        if (mouseX > videoWidth / 2 - buttonTextSize*5.66 - textWidth("NOCHMAL") / 2 && 
+          mouseX < videoWidth / 2 - buttonTextSize*5.66 + textWidth("NOCHMAL") / 2
+        ){
+          mouseClickable = true;
+        } 
+        else if (mouseX > videoWidth / 2 + buttonTextSize*4.33 - textWidth("UBER AETHERFON") / 2 && 
+          mouseX < videoWidth / 2 + buttonTextSize*4.33 + textWidth("UBER AETHERFON") / 2
+        ){
+          mouseClickable = true;
+        } else mouseClickable = false;
+      } 
+      else if (mouseX > 79 && 
+        mouseX < 99 + textTextSize/2 + textWidth("Placehol") &&
+        mouseY > videoHeight -75 - textTextSize && 
+        mouseY < videoHeight -75 + textTextSize / 2 
+      ){
+        mouseClickable = true;
+      } 
+      else mouseClickable = false;
+      break;
+    case 'imprint':
+      textFont(fontHeader);
+      textSize(buttonTextSize);
+      if (mouseX > 79 && 
+        mouseX < 99 + textTextSize*2 + textWidth("FORTSETZEN") &&
+        mouseY > videoHeight / 7 * 3 - buttonTextSize / 4 * 3 && 
+        mouseY < videoHeight / 7 * 3
+      ){
+        mouseClickable = true;
+      } 
+      else if (mouseX > 79 && 
+        mouseX < 99 + textTextSize*2 + textWidth("NEU STARTEN") &&
+        mouseY > videoHeight / 7 * 4 - buttonTextSize / 4 * 3 && 
+        mouseY < videoHeight / 7 * 4
+      ){
+        mouseClickable = true;
+      } 
+      else if (mouseX > 79 && 
+        mouseX < 99 + textTextSize*2 + textWidth("ÜBER AETHERFON") &&
+        mouseY > videoHeight / 7 * 5 - buttonTextSize / 4 * 3 && 
+        mouseY < videoHeight / 7 * 5
+      ){
+        mouseClickable = true;
+      } 
+      else mouseClickable = false;
+      break;
   }
 }
 function mouseWheel(event) {
-  wheel = wheel + event.delta/3 <= 0 ? 0 : wheel + event.delta/3 > lines.length-15 ? lines.length-15 : wheel + event.delta/3;
-  console.log(wheel);
+  let delta;
+  switch (status) {
+    case 'infoPage':
+      delta = navigator.userAgent.indexOf("Chrome") < 0 ? event.delta/3 : event.delta/150;
+      wheel = wheel + delta <= 0 ? 0 : wheel + delta > lines.length-14 ? lines.length-14 : wheel + delta;
+      break;
+    case 'imprint':
+      delta = navigator.userAgent.indexOf("Chrome") < 0 ? event.delta/3 : event.delta/150;
+      wheel = wheel + delta <= 0 ? 0 : wheel + delta > imprintLines.length-14 ? imprintLines.length-14 : wheel + delta;
+      break;
+  }
 }
+/*
+*/
 
 // Game Interaction Hands
 function topArea() {
@@ -893,7 +1546,7 @@ function topArea() {
     var random = Math.random();
     var detune = 100;
     var frequency = map(handPos.R.y, ranges.y1.high, ranges.y1.low, 500, 5000);// + random *50 -25;
-    var Q = map(handPos.R.x, ranges.x1.low, ranges.x1.high, 0, 50, true);// + random *10 -5;
+    var Q = map(handPos.R.x, ranges.x1.low, ranges.x1.high, -40, 40, true);// + random *10 -5;
     var gain = map(handPos.R.x, ranges.x1.low, ranges.x1.high, 1, 0, true);
 
     if (context.currentTime < endTime) {
@@ -914,7 +1567,7 @@ function topArea() {
     var random = Math.random();
     var detune = 100;
     var frequency = map(handPos.L.y, ranges.y1.high, ranges.y1.low, 500, 5000);// + random *50 -25;
-    var Q = map(handPos.L.x, ranges.x1.low, ranges.x1.high, 0, 50, true);// + random *10 -5;
+    var Q = map(handPos.L.x, ranges.x1.low, ranges.x1.high, -40, 40, true);// + random *10 -5;
     var gain = map(handPos.L.x, ranges.x1.low, ranges.x1.high, 1, 0, true);
 
     if (context.currentTime < endTime) {
@@ -983,7 +1636,7 @@ function topArea() {
     var random = Math.random();
     var detune = 100;
     var frequency = map(handPos.R.y, ranges.y3.high, ranges.y3.low, 500, 5000);// + random *50 -25;
-    var Q = map(handPos.R.x, ranges.x3.low, ranges.x3.high, 0, 50, true);// + random *10 -5;
+    var Q = map(handPos.R.x, ranges.x3.low, ranges.x3.high, -20, 20, true);// + random *10 -5;
     var gain = map(handPos.R.x, ranges.x3.low, ranges.x3.high, 0, 1, true);
 
     if (context.currentTime < endTime) {
@@ -998,8 +1651,8 @@ function topArea() {
     var random = Math.random();
     var detune = 100;
     var frequency = map(handPos.L.y, ranges.y3.high, ranges.y3.low, 500, 5000);// + random *50 -25;
-    var Q = map(handPos.L.x, ranges.x3.low, ranges.x3.high, 0, 50, true);// + random *5 -2.5;
-    var gain = map(handPos.L.x, ranges.x3.low, ranges.x3.high, 0, 3, true);
+    var Q = map(handPos.L.x, ranges.x3.low, ranges.x3.high, -20, 20, true);// + random *5 -2.5;
+    var gain = map(handPos.L.x, ranges.x3.low, ranges.x3.high, 0, 1, true);
 
     if (context.currentTime < endTime) {
       loopTimes[3] += deltaTime;
@@ -1135,6 +1788,7 @@ function visualsSoundsOnBottomLines() {
   }
 }
 function visualizationBody() {
+  tint(255);
   image(imgR, handPos.L.x-36, handPos.L.y-50, 72, 100);
   image(imgL, handPos.R.x-36, handPos.R.y-50, 72, 100);
 }

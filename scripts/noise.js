@@ -206,4 +206,6 @@ function visualsNoisy(visualsPositions, tempo) {
             endShape(CLOSE);
         }
     }
+
+    translate(-videoWidth / 2, -videoHeight / 2);
 }
