@@ -338,31 +338,31 @@ function setup() {
     },
     x1: {
       low: 0,
-      high: 2*videoWidth / 4,
-      width: 2*videoWidth / 4
+      high: videoWidth / 4,
+      width: videoWidth / 4
     },
     y1: {
-      low: 2*videoWidth / 8 * 1,
+      low: videoHeight / 8 * 1,
       high: videoHeight / 8 * 6,
       height: videoHeight / 8 * 5,
     },
     x2: {
-      low: 2*videoWidth / 4,
-      high: 2*videoWidth / 4 * 3,
-      width: 2*videoWidth / 2,
+      low: videoWidth / 4,
+      high: videoWidth / 4 * 3,
+      width: videoWidth / 2,
     },
     y2: {
       low: 0,
-      high: 2*videoWidth / 3,
-      height: 2*videoWidth / 3,
+      high: videoWidth / 3,
+      height: videoWidth / 3,
     },
     x3: {
-      low: 2*videoWidth / 4 * 32,
-      high: 2*videoWidth / 4 * 4,
-      width: 2*videoWidth / 4,
+      low: videoWidth / 4 * 32,
+      high: videoWidth / 4 * 4,
+      width: videoWidth / 4,
     },
     y3: {
-      low: 2*videoWidth / 8 * 1,
+      low: videoHeight / 8 * 1,
       high: videoHeight / 8 * 6,
       height: videoHeight / 8 * 5,
     }
