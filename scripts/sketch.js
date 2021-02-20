@@ -1,5 +1,5 @@
 // States
-let status = 'start';
+let status = 'themeSelection';
 
 let video;
 let posenet;
@@ -105,9 +105,9 @@ let imprintTextWords = [
 "Alle ", "Inhalte ", "dieser ", "Webseite ", "(Bilder, ", "Fotos, ", "Texte, ", "Videos) ", "unterliegen ", "dem ", "Urheberrecht ", "der ", "Bundesrepublik ", "Deutschland. ", "Bitte ", "fragen ", "Sie ", "uns ", "bevor ", "Sie ", "die ", "Inhalte ", "dieser ", "Website ", "verbreiten, ", "vervielfältigen ", "oder ", "verwerten ", "wie ", "zum ", "Beispiel ", "auf ", "anderen ", "Websites ", "erneut ", "veröffentlichen. ", "Falls ", "notwendig, ", "werden ", "wir ", "die ", "unerlaubte ", "Nutzung ", "von ", "Teilen ", "der ", "Inhalte ", "unserer ", "Seite ", "rechtlich ", "verfolgen. ", "\n",
 "Sollten ", "Sie ", "auf ", "dieser ", "Webseite ", "Inhalte ", "finden, ", "die ", "das ", "Urheberrecht ", "verletzen, ", "bitten ", "wir ", "Sie ", "uns ", "zu ", "kontaktieren. ", "\n",
 "Bildernachweis ", "\n",
-"Die ", "Bilder, ", "Fotos ", "und ", "Grafiken ", "auf ", "dieser ", "Webseite ", "sind ", "urheberrechtlich ", "geschützt. ", "\n",
-"Die ", "Bilderrechte ", "liegen ", "bei ", "den ", "folgenden ", "Fotografen ", "und ", "Unternehmen: ", "\n",
-"•"
+//"Die ", "Bilder, ", "Fotos ", "und ", "Grafiken ", "auf ", "dieser ", "Webseite ", "sind ", "urheberrechtlich ", "geschützt. ", "\n",
+//"Die ", "Bilderrechte ", "liegen ", "bei ", "den ", "folgenden ", "Fotografen ", "und ", "Unternehmen: ", "\n",
+//"•"
 ];
 let imprintLines = [[]];
 let leftEdge;
@@ -170,23 +170,15 @@ function createAudioContext(theme) {
   context = new AudioContext();
 
   sphere = new Audio(theme + "/sphere.wav");
-  // switch (theme) {
-  //   case 'theme1':
-  //     sphere = sphere1;
-  //     break;
-  //   case 'theme2':
-  //     sphere = sphere2;
-  //     break;
-  //   case 'theme3':
-  //     sphere = sphere3;
-  //     break;
-  // }
   sphere.loop = true;
   source = context.createMediaElementSource(sphere);
   sphereFilter = context.createBiquadFilter();
+  gainNode = context.createGain();
+  gainNode.gain.value = 0;
 
   source.connect(sphereFilter)
-  sphereFilter.connect(context.destination);
+  sphereFilter.connect(gainNode);
+  gainNode.connect(context.destination)
 
   biquadFilters = [];
   audioBuffers = [];
@@ -309,8 +301,6 @@ function preload() {
 
   // Sphären laden
   sphere1 = new Audio("theme1/sphere.wav");
-  sphere2 = new Audio("theme2/sphere.wav");
-  sphere3 = new Audio("theme3/sphere.wav");
 
   // Video laden
   preloadIntroVideo = createVideo('assets/intro.mp4');
@@ -353,11 +343,11 @@ function setup() {
     },
     y2: {
       low: 0,
-      high: videoWidth / 3,
-      height: videoWidth / 3,
+      high: videoHeight / 5*2,
+      height: videoHeight / 5*2,
     },
     x3: {
-      low: videoWidth / 4 * 32,
+      low: videoWidth / 4 * 3,
       high: videoWidth / 4 * 4,
       width: videoWidth / 4,
     },
@@ -1533,23 +1523,14 @@ function mouseWheel(event) {
 
 // Game Interaction Hands
 function topArea() {
-  
-  
 
-  // Rechts
+  // Rechts Lila
   if (handPos.R.y > ranges.y1.low && handPos.R.y < ranges.y1.high && handPos.R.x > ranges.x1.low && handPos.R.x < ranges.x1.high) {
 
-    // biquadFilters[1].frequency.value = map (handRY, ranges.y.low, ranges.y.high, 5, 20000);
-    // biquadFilters[1].detune.value = map (handRX, ranges.x1.low , ranges.x1.high, 0, 45); // Detune
-    // biquadFilters[1].Q.value = map (handRX, ranges.x1.low , ranges.x1.high, 0, 50); // Q
-    // biquadFilters[1].gain.value =  map (handRX, ranges.x1.low, ranges.x1.high, -100, 100); // Gain // hat keine Auswirkungen
-    // gains[1].gain.value = map (handRY, ranges.y.low, ranges.y.high, -50, 0); // Volume
-
-    var random = Math.random();
     var detune = 100;
-    var frequency = map(handPos.R.y, ranges.y1.high, ranges.y1.low, 500, 5000);// + random *50 -25;
-    var Q = map(handPos.R.x, ranges.x1.low, ranges.x1.high, -40, 40, true);// + random *10 -5;
-    var gain = map(handPos.R.x, ranges.x1.low, ranges.x1.high, 1, 0, true);
+    var frequency = map(handPos.R.y, ranges.y1.high, ranges.y1.low, 50, 5000); // 10 - sampleRate/2, def:350
+    var Q = map(handPos.R.x, ranges.x1.low, ranges.x1.high, 1, 20, true); // Quality: 0.0001 - 1000, def: 1
+    var gain = map(handPos.R.x, ranges.x1.low, ranges.x1.high, 0, 40, true); // -40 - 40, def: 0
 
     if (context.currentTime < endTime) {
       loopTimes[1] += deltaTime;
@@ -1560,17 +1541,10 @@ function topArea() {
     }
   } else if (handPos.L.y > ranges.y1.low && handPos.L.y < ranges.y1.high && handPos.L.x > ranges.x1.low && handPos.L.x < ranges.x1.high) {
 
-    // biquadFilters[1].frequency.value = map (handRY, ranges.y.low, ranges.y.high, 5, 20000);
-    // biquadFilters[1].detune.value = map (handRX, ranges.x1.low , ranges.x1.high, 0, 45); // Detune
-    // biquadFilters[1].Q.value = map (handRX, ranges.x1.low , ranges.x1.high, 0, 50); // Q
-    // biquadFilters[1].gain.value =  map (handRX, ranges.x1.low, ranges.x1.high, -100, 100); // Gain // hat keine Auswirkungen
-    // gains[1].gain.value = map (handRY, ranges.y.low, ranges.y.high, -50, 0); // Volume
-
-    var random = Math.random();
     var detune = 100;
-    var frequency = map(handPos.L.y, ranges.y1.high, ranges.y1.low, 500, 5000);// + random *50 -25;
-    var Q = map(handPos.L.x, ranges.x1.low, ranges.x1.high, -40, 40, true);// + random *10 -5;
-    var gain = map(handPos.L.x, ranges.x1.low, ranges.x1.high, 1, 0, true);
+    var frequency = map(handPos.L.y, ranges.y1.high, ranges.y1.low, 50, 5000); // 10 - sampleRate/2, def:350
+    var Q = map(handPos.L.x, ranges.x1.low, ranges.x1.high, 1, 20, true); // Quality: 0.0001 - 1000, def: 1
+    var gain = map(handPos.L.x, ranges.x1.low, ranges.x1.high, 0, 40, true); // -40 - 40, def: 0
 
     if (context.currentTime < endTime) {
       loopTimes[1] += deltaTime;
@@ -1583,48 +1557,20 @@ function topArea() {
   // Oben
   if (handPos.R.y > ranges.y2.low && handPos.R.y < ranges.y2.high && handPos.R.x > ranges.x2.low && handPos.R.x < ranges.x2.high) {
 
-    // var random = Math.random();
-    // var detune = 100;
-    // var frequency = map (handRY, ranges.y2.high, ranges.y2.low, 500, 5000);// + random *50 -25;
-    // var Q = map (handRX, ranges.x2.low , ranges.x2.high, 0, 50, true);// + random *10 -5;
-    // var gain = map (handRY, ranges.y2.high, ranges.y2.low, 0, 0.5, true);
-
-    // if (context.currentTime > beginTime && context.currentTime < endTime) {
-    //   loopTimes[2] += deltaTime;
-    //   if(loopTimes[2] > (takt * 1 * eightNoteTime)) { // takt * 8 * eightNoteTime = 4.266
-    //     loopTimes[2] = 0;
-    //     playSound2(detune, frequency, Q, gain);
-    //   }
-    // }
-
-    sphereFilter.frequency.value = map(handPos.R.y, ranges.y2.high, ranges.y2.low, 500, 5000);
-    sphereFilter.Q.value = map(handPos.R.x, ranges.x2.low, ranges.x2.high, 0, 50, true);
-    sphereFilter.gain.value = map(handPos.R.y, ranges.y2.high, ranges.y2.low, 0, 0.5, true);
-    // gainNode.gain.value = map (handRY, ranges.y2.high, ranges.y2.low, 0, 1, true);
+    sphereFilter.frequency.value = map(handPos.R.x, ranges.x2.low, ranges.x2.high, 10, 5000); // 10 - sampleRate/2, def:350
+    sphereFilter.Q.value = map(handPos.R.x, ranges.x2.low, ranges.x2.high, 0.5, 2, true); // Quality: 0.0001 - 1000, def: 1
+    sphereFilter.gain.value = map(handPos.R.y, ranges.y2.high, ranges.y2.low, -40, 40, true); // -40 - 40, def: 0
+    gainNode.gain.value = map(handPos.R.y, ranges.y2.high, ranges.y2.low, 0, 1, true);
 
     if (!sphereIsPlaying) sphere.play();
     sphereIsPlaying = true;
 
   } else if (handPos.L.y > ranges.y2.low && handPos.L.y < ranges.y2.high && handPos.L.x > ranges.x2.low && handPos.L.x < ranges.x2.high) {
 
-    // var random = Math.random();
-    // var detune = 100;
-    // var frequency = map (handLY, ranges.y2.high, ranges.y2.low, 500, 5000);// + random *50 -25;
-    // var Q = map (handLX, ranges.x2.low , ranges.x2.high, 0, 50, true);// + random *10 -5;
-    // var gain = map (handLY, ranges.y2.high, ranges.y2.low, 0, 0.5, true);
-
-    // if (context.currentTime > beginTime && context.currentTime < endTime) {
-    //   loopTimes[2] += deltaTime;
-    //   if(loopTimes[2] > (takt * 1 * eightNoteTime)) { // takt * 8 * eightNoteTime = 4.266
-    //     loopTimes[2] = 0;
-    //     playSound2(detune, frequency, Q, gain);
-    //   }
-    // }
-
-    sphereFilter.frequency.value = map(handPos.L.x, ranges.x2.low, ranges.x2.high, 500, 5000);
-    sphereFilter.Q.value = map(handPos.L.x, ranges.x2.low, ranges.x2.high, 0, 50, true);
-    sphereFilter.gain.value = map(handPos.L.y, ranges.y2.high, ranges.y2.low, 0, 0.5, true);
-    // gainNode.gain.value = map (handRY, ranges.y2.high, ranges.y2.low, 0, 1, true);
+    sphereFilter.frequency.value = map(handPos.L.x, ranges.x2.low, ranges.x2.high, 10, 5000); // 10 - sampleRate/2, def:350
+    sphereFilter.Q.value = map(handPos.L.x, ranges.x2.low, ranges.x2.high, 0.5, 2, true); // Quality: 0.0001 - 1000, def: 1
+    sphereFilter.gain.value = map(handPos.L.y, ranges.y2.high, ranges.y2.low, -40, 40, true); // -40 - 40, def: 0
+    gainNode.gain.value = map(handPos.L.y, ranges.y2.high, ranges.y2.low, 0, 1, true);
 
     if (!sphereIsPlaying) sphere.play();
     sphereIsPlaying = true;
@@ -1632,14 +1578,13 @@ function topArea() {
     sphereIsPlaying = false;
     sphere.pause()
   }
-  // Links
+  // Links Grün
   if (handPos.R.y > ranges.y3.low && handPos.R.y < ranges.y3.high && handPos.R.x > ranges.x3.low && handPos.R.x < ranges.x3.high) {
 
-    var random = Math.random();
     var detune = 100;
-    var frequency = map(handPos.R.y, ranges.y3.high, ranges.y3.low, 500, 5000);// + random *50 -25;
-    var Q = map(handPos.R.x, ranges.x3.low, ranges.x3.high, -20, 20, true);// + random *10 -5;
-    var gain = map(handPos.R.x, ranges.x3.low, ranges.x3.high, 0, 1, true);
+    var frequency = map(handPos.R.y, ranges.y3.high, ranges.y3.low, 10, 2000); // 10 - sampleRate/2, def:350
+    var Q = 1;//map(handPos.R.x, ranges.x3.low, ranges.x3.high, 1, 1, true); // Quality: 0.0001 - 1000, def: 1
+    var gain = map(handPos.R.x, ranges.x3.low, ranges.x3.high, 40, 0, true); // -40 - 40, def: 0
 
     if (context.currentTime < endTime) {
       loopTimes[3] += deltaTime;
@@ -1650,11 +1595,10 @@ function topArea() {
     }
   } else if (handPos.L.y > ranges.y3.low && handPos.L.y < ranges.y3.high && handPos.L.x > ranges.x3.low && handPos.L.x < ranges.x3.high) {
 
-    var random = Math.random();
     var detune = 100;
-    var frequency = map(handPos.L.y, ranges.y3.high, ranges.y3.low, 500, 5000);// + random *50 -25;
-    var Q = map(handPos.L.x, ranges.x3.low, ranges.x3.high, -20, 20, true);// + random *5 -2.5;
-    var gain = map(handPos.L.x, ranges.x3.low, ranges.x3.high, 0, 1, true);
+    var frequency = map(handPos.L.y, ranges.y3.high, ranges.y3.low, 10, 2000); // 10 - sampleRate/2, def:350
+    var Q = 1;//map(handPos.L.x, ranges.x3.low, ranges.x3.high, 1, 1, true); // Quality: 0.0001 - 1000, def: 1
+    var gain = map(handPos.L.x, ranges.x3.low, ranges.x3.high, 40, 0, true); // -40 - 40, def: 0
 
     if (context.currentTime < endTime) {
       loopTimes[3] += deltaTime;

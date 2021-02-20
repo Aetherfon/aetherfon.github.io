@@ -1,5 +1,5 @@
 function visualsNoisy(visualsPositions, tempo) {
-    // visualsPositions: Spielzeit und Eigenschaften der gespielten Töne
+    // visualsPositions: Spielzeit, detune, frequency, Q und gain der gespielten Töne
 
     translate(videoWidth / 2, videoHeight / 2);
     
@@ -13,6 +13,7 @@ function visualsNoisy(visualsPositions, tempo) {
     /*************
      ** Sound 1 **
      *************/
+    // Rechts Lila
     // Wenn keine Einträge zu Sound 1 vorhanden sind, wurden noch keine gespielt und es muss nichts visualisiert werden
     if (visualsPositions[1].length) {
         
@@ -28,27 +29,15 @@ function visualsNoisy(visualsPositions, tempo) {
                 let deltaSound = currentTime - time;                    // Zeit die seit dem letzten Sound vergangen ist
                 let noiseMax1 = map(deltaSound, 0, 1, 0.65, 0, true);   // Noise-Wiederhohlung
                 let noiseHeight1 = map(deltaSound, 0, 1, 100, 0, true); // Noise-Höhe
-                // let color1 = {
-                //     r: 255,
-                //     g: map(visualsPositions[sound][soundElement][1], 0, 2750, 150, 0, true),
-                //     b: map(visualsPositions[sound][soundElement][1], 2750, 5000, 0, 200, true),
-                //     a: map(deltaSound, 0, 2, MAXTRANSPARENCY, 0, true)
-                // };
-                // let color1 = {
-                //     r: lastSounds[soundElement][3] < 0.25 ? map(lastSounds[soundElement][3], 0, .25, 74, 131, true)  : map(lastSounds[soundElement][3], .25, .5, 131, 168, true),
-                //     g: lastSounds[soundElement][3] < 0.25 ? map(lastSounds[soundElement][3], 0, .25, 6, 42, true)    : map(lastSounds[soundElement][3], .25, .5, 42, 147, true),
-                //     b: lastSounds[soundElement][3] < 0.25 ? map(lastSounds[soundElement][3], 0, .25, 127, 234, true) : map(lastSounds[soundElement][3], .25, .5, 234, 255, true),
-                //     a: map(deltaSound, 0, 1, MAXTRANSPARENCY, 0, true)
-                // };
                 let color1 = {
-                    r: map(lastSounds[soundElement][3], 0, .5, 74, 131, true),
-                    g: map(lastSounds[soundElement][3], 0, .5, 6, 42, true),
-                    b: map(lastSounds[soundElement][3], 0, .5, 127, 234, true),
+                    r: map(lastSounds[soundElement][3], 0, 40, 74, 131, true),
+                    g: map(lastSounds[soundElement][3], 0, 40, 6, 42, true),
+                    b: map(lastSounds[soundElement][3], 0, 40, 127, 234, true),
                     a: map(deltaSound, 0, 1, MAXTRANSPARENCY, 0, true)
                 };
                 let position1 = createVector(
-                    map(lastSounds[soundElement][3], 1, 0, -MOVEAREA*1.5, 0, true),
-                    map(lastSounds[soundElement][1], 500, 5000, MOVEAREA, -MOVEAREA, true)
+                    map(lastSounds[soundElement][3], 0, 40, -MOVEAREA*1.5, 0, true),
+                    map(lastSounds[soundElement][1], 50, 5000, MOVEAREA, -MOVEAREA, true)
                 );                                                      // Position der Visualisierung
                 let movement1 = createVector(0, 0);                     // Positionsveränderung der aktuellen Visualisierung gegenüber der vorherigen
                 
@@ -56,10 +45,11 @@ function visualsNoisy(visualsPositions, tempo) {
                 for (let i = VISUSIZE; i > 0; i -= STEP) {
                     
                     // Erst bei der 2. Visualisierung kann eine Bewegung zwischen ihnen berechnet werden
-                    if (soundElement > 0) movement1.set( 
-                        map(lastSounds[soundElement - 1][3] - lastSounds[soundElement][3], -.01, .01, -.02, .02) * i, 
+                    if (soundElement > 0) {
+                        movement1.set( 
+                        map(lastSounds[soundElement - 1][3] - lastSounds[soundElement][3], -.1, .1, -.01, .01) * i, 
                         map(lastSounds[soundElement - 1][1] - lastSounds[soundElement][1], 100, -100, .1, -.1) * i
-                    );
+                        )};
                     noStroke();
                     fill(color1.r,color1.g,color1.b,color1.a*2);// - (i/2));
                     
@@ -82,6 +72,7 @@ function visualsNoisy(visualsPositions, tempo) {
     /*************
      ** Sound 2 **
      *************/
+    // Links Grün
     if (visualsPositions[2].length) {
         let lastSounds = visualsPositions[2].slice(Math.max(visualsPositions[2].length - 5, 0))
         for (soundElement in lastSounds) {
@@ -90,28 +81,27 @@ function visualsNoisy(visualsPositions, tempo) {
                 let deltaSound = currentTime - time;
                 let noiseMax2 = map(deltaSound, 0, 1, 0.65, 0, true);
                 let noiseHeight2 = map(deltaSound, 0, 1, 100, 0, true);
-                // let color2 = {
-                //     r: map(lastSounds[soundElement][1], 2750, 5000, 0, 120, true),
-                //     g: map(lastSounds[soundElement][1], 0, 2750, 220, 0, true),
-                //     b: 255,
-                //     a: map(deltaSound, 0, 2, MAXTRANSPARENCY, 0, true)
-                // };
+
                 let color2 = {
-                    r: lastSounds[soundElement][3] < 0.25 ? 0                                                       : map(lastSounds[soundElement][3], .25, .5, 0, 97, true),
-                    g: lastSounds[soundElement][3] < 0.25 ? map(lastSounds[soundElement][3], 0, .25, 63, 255, true) : map(lastSounds[soundElement][3], .25, .5, 255, 248, true),
-                    b: lastSounds[soundElement][3] < 0.25 ? map(lastSounds[soundElement][3], 0, .25, 67, 204, true) : map(lastSounds[soundElement][3], .25, .5, 204, 127, true),
-                    a: map(deltaSound, 0, 1, MAXTRANSPARENCY, 0, true)
+                    // r: lastSounds[soundElement][3] > 10 ? 0                                                       : map(lastSounds[soundElement][3], 10, 40, 0, 97, true),
+                    // g: lastSounds[soundElement][3] > 10 ? map(lastSounds[soundElement][3], 0, 10, 63, 255, true) : map(lastSounds[soundElement][3], 10, 40, 255, 248, true),
+                    // b: lastSounds[soundElement][3] > 10 ? map(lastSounds[soundElement][3], 0, 10, 67, 204, true) : map(lastSounds[soundElement][3], 10, 40, 204, 127, true),
+                    r: lastSounds[soundElement][3] > 20 ? 0                                                      : map(lastSounds[soundElement][3], 20, 40, 0, 97, true),
+                    g: lastSounds[soundElement][3] > 20 ? map(lastSounds[soundElement][3], 0, 20, 63, 248, true) : map(lastSounds[soundElement][3], 20, 40, 248, 255, true),
+                    b: lastSounds[soundElement][3] > 20 ? map(lastSounds[soundElement][3], 0, 20, 67, 127, true) : map(lastSounds[soundElement][3], 20, 40, 127, 204, true),
+                    a: map(deltaSound, 0, 1, MAXTRANSPARENCY/4*3, 0, true)
                 };
                 let position2 = createVector(
-                    map(lastSounds[soundElement][3], 1, 0, MOVEAREA*1.5, 0, true),       // Gain on X { x: 0 <= x <= 1 }
-                    map(lastSounds[soundElement][1], 500, 5000, MOVEAREA, -MOVEAREA, true) // Frequency on Y { x: 500 <= x <= 5000 }
+                    map(lastSounds[soundElement][3], 0, 40, MOVEAREA*1.5, 0, true),       // Gain on X { x: 0 <= x <= 1 }
+                    map(lastSounds[soundElement][1], 10, 2000, MOVEAREA, -MOVEAREA, true) // Frequency on Y { x: 500 <= x <= 5000 }
                 );
                 let movement2 = createVector(0, 0);
                 for (let i = VISUSIZE; i > 0; i -= STEP) {
-                    if (soundElement > 0) movement2.set( 
-                        map(lastSounds[soundElement - 1][3] - lastSounds[soundElement][3], .01, -.01, -.02, .02) * i, 
+                    if (soundElement > 0) {
+                        movement2.set( 
+                        map(lastSounds[soundElement - 1][3] - lastSounds[soundElement][3], .02, -.02, .005, -.005) * i, 
                         map(lastSounds[soundElement - 1][1] - lastSounds[soundElement][1], 100, -100, .2, -.2) * i
-                    );
+                    )};
                     noStroke();
                     fill(color2.r,color2.g,color2.b,color2.a - (i/2));
                     beginShape();
@@ -134,33 +124,27 @@ function visualsNoisy(visualsPositions, tempo) {
      *************/
     if (sphereIsPlaying) {
         let midSphereFilter = {
-            gain : { value: 0.25 },
-            frequency : { value: 2250 },
-            Q : { value: 25 }
+            gain : { value: 0 },
+            frequency : { value: 2495 },
+            Q : { value: 1.25 }
         };
-        let noiseMaxSpheric = map(sphereFilter.gain.value, 0, .5, 0, 0.65, true);
-        let noiseHeightSpheric = map(sphereFilter.gain.value, 0, .5, 0, 100, true);
-        // let colorSpheric = {
-        //     r: map(sphereFilter.frequency.value, 2750, 5000, 0, 200, true),
-        //     g: 255,
-        //     b: map(sphereFilter.frequency.value, 0, 2750, 190, 0, true),
-        //     a: map(sphereFilter.gain.value, 0, .5, 0, MAXTRANSPARENCY, true)
-        // };
+        let noiseMaxSpheric = map(sphereFilter.gain.value, -40, 40, 0, 0.65, true);
+        let noiseHeightSpheric = map(sphereFilter.gain.value, -40, 40, 0, 100, true);
         let colorSpheric = {
-            r: sphereFilter.gain.value < 0.25 ? map(sphereFilter.gain.value, 0, .25, 0, 28, true) : map(sphereFilter.gain.value, .25, .5, 28, 61, true),
-            g: sphereFilter.gain.value < 0.25 ? map(sphereFilter.gain.value, 0, .25, 0, 39, true) : map(sphereFilter.gain.value, .25, .5, 39, 216, true),
-            b: sphereFilter.gain.value < 0.25 ? map(sphereFilter.gain.value, 0, .25, 102, 255, true) : map(sphereFilter.gain.value, .25, .5, 255, 242, true),
-            a: map(sphereFilter.gain.value, 0, .5, 0, MAXTRANSPARENCY*2, true)
+            r: sphereFilter.gain.value < 0 ? map(sphereFilter.gain.value, 0, -40, 0, 28, true) : map(sphereFilter.gain.value, 0, 40, 28, 61, true),
+            g: sphereFilter.gain.value < 0 ? map(sphereFilter.gain.value, 0, -40, 0, 39, true) : map(sphereFilter.gain.value, 0, 40, 39, 216, true),
+            b: sphereFilter.gain.value < 0 ? map(sphereFilter.gain.value, 0, -40, 102, 255, true) : map(sphereFilter.gain.value, 0, 40, 255, 242, true),
+            a: map(sphereFilter.gain.value, -40, 40, 0, MAXTRANSPARENCY*2, true)
         };
         let positionSpheric = createVector(
-            map(sphereFilter.frequency.value, 500, 5000, -MOVEAREA, MOVEAREA, true),    // Frequency on X { x: 500 <= x <= 5000 }
-            map(sphereFilter.gain.value, 0, .5, 0, -MOVEAREA*2, true)               // gain on Y { x: 0 <= x <= 0.5 }
+            map(sphereFilter.frequency.value, 10, 5000, -MOVEAREA, MOVEAREA, true), // Frequency on X { x: 500 <= x <= 5000 }
+            map(sphereFilter.gain.value, -40, 40, 0, -MOVEAREA*2, true) // gain on Y { x: 0 <= x <= 0.5 }
         );
         let movementSpheric = createVector(0, 0)
         for (let i = VISUSIZE; i > 0; i -= STEP) {
             movementSpheric.set( 
-                map(midSphereFilter.frequency.value - sphereFilter.frequency.value, 100, -100, -.1, .1) * i, 
-                map(midSphereFilter.gain.value - sphereFilter.gain.value, .01, -.01, .1, -.1) * i);
+                map(midSphereFilter.frequency.value - sphereFilter.frequency.value, 2495, -2495, -.1, .1) * i, 
+                map(midSphereFilter.gain.value - sphereFilter.gain.value, 20, -20, .1, -.1) * i);
             noStroke();
             fill(colorSpheric.r,colorSpheric.g,colorSpheric.b,colorSpheric.a - (i/2));
             beginShape();
